@@ -1,0 +1,148 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint-test:
+    name: Typecheck, test, build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Require APP_VERSION bump
+        if: github.event_name == 'pull_request'
+        run: |
+          git fetch --no-tags origin "${{ github.base_ref }}"
+          if git diff --quiet "origin/${{ github.base_ref }}...HEAD" -- frontend/src/version.ts; then
+            echo "::error::Bump APP_VERSION on every PR so players can see they have the latest build."
+            echo "Run: npm run bump:version"
+            echo "File: frontend/src/version.ts"
+            exit 1
+          fi
+          grep -E "export const APP_VERSION = '[0-9]+\.[0-9]+\.[0-9]+';" frontend/src/version.ts
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - name: Install dependencies
+        run: |
+          unset NPM_TOKEN NODE_AUTH_TOKEN || true
+          npm config set registry https://registry.npmjs.org/
+          npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Unit tests
+        run: npm test
+
+      - name: Production build
+        run: npm run build
+
+  trigger-pipeline:
+    name: Trigger CodePipeline
+    needs: lint-test
+    if: >
+      (github.event_name == 'push' || github.event_name == 'workflow_dispatch') &&
+      github.ref == 'refs/heads/main' &&
+      vars.AWS_GITHUB_ACTIONS_ROLE_ARN != ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    concurrency:
+      group: deploy-main
+      cancel-in-progress: false
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_GITHUB_ACTIONS_ROLE_ARN }}
+          aws-region: us-east-1
+
+      - name: Package source and start pipeline
+        id: pipeline
+        run: |
+          set -euo pipefail
+          BUCKET=$(aws ssm get-parameter --name /billy/pipeline/source_bucket --query Parameter.Value --output text)
+          KEY=$(aws ssm get-parameter --name /billy/pipeline/source_key --query Parameter.Value --output text)
+          PIPELINE=$(aws ssm get-parameter --name /billy/pipeline/name --query Parameter.Value --output text)
+
+          echo "$GITHUB_SHA" > .git-sha
+          rm -f /tmp/billy-source.zip
+          zip -r /tmp/billy-source.zip . \
+            -x 'node_modules/*' \
+            -x '*/node_modules/*' \
+            -x '.git/*' \
+            -x '**/dist/*' \
+            -x '**/.terraform/*' \
+            -x '**/coverage/*' \
+            -x '*.tsbuildinfo' \
+            -x '*.tfstate*' \
+            -x '**/terraform.tfvars'
+
+          aws s3 cp /tmp/billy-source.zip "s3://${BUCKET}/${KEY}"
+          EXEC=$(aws codepipeline start-pipeline-execution --name "$PIPELINE" --query pipelineExecutionId --output text)
+          echo "execution_id=$EXEC" >> "$GITHUB_OUTPUT"
+          echo "pipeline_name=$PIPELINE" >> "$GITHUB_OUTPUT"
+          echo "Started pipeline ${PIPELINE} execution ${EXEC}"
+
+      - name: Wait for deployment
+        run: |
+          set -euo pipefail
+          EXEC_ID="${{ steps.pipeline.outputs.execution_id }}"
+          PIPELINE="${{ steps.pipeline.outputs.pipeline_name }}"
+          echo "Waiting for $PIPELINE execution $EXEC_ID …"
+          for i in $(seq 1 90); do
+            STATE=$(aws codepipeline get-pipeline-state --name "$PIPELINE" --output json)
+
+            FAILED_STAGE=$(echo "$STATE" | jq -r --arg id "$EXEC_ID" '
+              [.stageStates[]
+                | select(.latestExecution.pipelineExecutionId == $id)
+                | select(.latestExecution.status | IN("Failed", "Stopped", "Cancelled"))
+                | .stageName][0] // empty')
+            if [ -n "$FAILED_STAGE" ]; then
+              echo "Deployment failed in stage: $FAILED_STAGE"
+              echo "$STATE" | jq -r --arg stage "$FAILED_STAGE" '
+                .stageStates[]
+                | select(.stageName == $stage)
+                | .actionStates[]
+                | "  action=\(.actionName)"
+                  + " status=\(.latestExecution.status // "n/a")"
+                  + (if .latestExecution.errorDetails
+                     then " error=[\(.latestExecution.errorDetails.code // "?")] \(.latestExecution.errorDetails.message // "?")"
+                     else "" end)'
+              exit 1
+            fi
+
+            LAST_EXEC=$(echo "$STATE" | jq -r '.stageStates[-1].latestExecution.pipelineExecutionId // empty')
+            LAST_STATUS=$(echo "$STATE" | jq -r '.stageStates[-1].latestExecution.status // empty')
+            echo "Attempt $i/90: final stage execution=${LAST_EXEC:-none} status=${LAST_STATUS:-none}"
+            if [ "$LAST_EXEC" = "$EXEC_ID" ] && [ "$LAST_STATUS" = "Succeeded" ]; then
+              echo "Deployment succeeded."
+              exit 0
+            fi
+            sleep 20
+          done
+          echo "Timed out waiting for pipeline execution."
+          exit 1

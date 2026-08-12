@@ -1,0 +1,21 @@
+{
+  "name": "billy",
+  "private": true,
+  "version": "0.0.1",
+  "type": "module",
+  "description": "Billy, the crazy dog — browser platformer",
+  "workspaces": [
+    "frontend"
+  ],
+  "scripts": {
+    "start": "npm run dev -w billy-app",
+    "dev": "npm run dev -w billy-app",
+    "build": "npm run build -w billy-app",
+    "test": "npm run test -w billy-app",
+    "typecheck": "npm run typecheck -w billy-app",
+    "bump:version": "node scripts/bump-app-version.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

@@ -1,0 +1,90 @@
+:root {
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  background: #1a3a6b;
+  font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+}
+
+#game {
+  display: block;
+  width: 100%;
+  height: 100%;
+  image-rendering: pixelated;
+}
+
+#hud {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+#title-card {
+  pointer-events: auto;
+  text-align: center;
+  color: #fff;
+  text-shadow: 0 3px 0 #0b1c38;
+}
+
+#title-card h1 {
+  margin: 0 0 0.4rem;
+  font-size: clamp(1.8rem, 6vw, 3.4rem);
+  letter-spacing: 0.02em;
+}
+
+#title-card p {
+  margin: 0 0 1.2rem;
+  opacity: 0.9;
+}
+
+#start {
+  appearance: none;
+  border: 0;
+  border-radius: 999px;
+  padding: 0.7rem 1.6rem;
+  font: inherit;
+  font-weight: 700;
+  color: #1a3a6b;
+  background: #ffd24a;
+  cursor: pointer;
+  box-shadow: 0 4px 0 #c79212;
+}
+
+#start:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 #c79212;
+}
+
+#play-hud {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  color: #ffd24a;
+  font-size: 1.4rem;
+  font-weight: 800;
+  text-shadow: 0 2px 0 #0b1c38;
+}
+
+footer {
+  position: absolute;
+  bottom: 0.6rem;
+  left: 0;
+  right: 0;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 10px;
+  pointer-events: none;
+}
