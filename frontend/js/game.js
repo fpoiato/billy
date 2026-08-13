@@ -421,6 +421,8 @@ var Billy = Billy || {};
     }
     if (d.kind === 'palm') D.palm(ctx, x, d.y);
     if (d.kind === 'castle') D.castle(ctx, x, d.y);
+    if (d.kind === 'kombi') D.kombi(ctx, x, d.y);
+    if (d.kind === 'elders') D.elders(ctx, x, d.y, state.t);
     if (d.kind === 'gate') D.gate(ctx, x, d.y);
     if (d.kind === 'grandma') {
       D.granny(ctx, x, d.y, state.t, { feed: state.player.eating });

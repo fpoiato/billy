@@ -113,13 +113,15 @@
   }
 
   function reunion(level, x0) {
-    var w = 1400;
+    var w = 1500;
     B.plat(level, x0, C.GROUND, w, 90);
     B.steaksLine(level, x0 + 80, C.GROUND - 28, 6, 48);
     B.deco(level, 'palm', x0 + 500, C.GROUND);
     B.shower(level, x0 + 700);
-    B.deco(level, 'toy', x0 + 1100, C.GROUND, { kiss: true });
-    level.goal = { x: x0 + 1080, banner: 'O Patinho Amarelo!' };
+    B.deco(level, 'kombi', x0 + 820, C.GROUND);
+    B.deco(level, 'elders', x0 + 1024, C.GROUND);
+    B.deco(level, 'toy', x0 + 1220, C.GROUND, { kiss: true });
+    level.goal = { x: x0 + 1200, banner: 'O Patinho Amarelo!' };
     return w;
   }
 
