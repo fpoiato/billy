@@ -56,13 +56,13 @@
 
   function suburb(level, x0) {
     B.plat(level, x0, C.GROUND, 1700, 90);
-    B.deco(level, 'door', x0 + 120, C.GROUND);
-    B.deco(level, 'plant', x0 + 220, C.GROUND);
+    B.neighbor(level, x0 + 80, { tone: 0 });
+    B.deco(level, 'plant', x0 + 240, C.GROUND);
     B.steaksLine(level, x0 + 280, C.GROUND - 28, 5, 48);
-    B.deco(level, 'door', x0 + 620, C.GROUND);
+    B.neighbor(level, x0 + 540, { tone: 1 });
     B.critter(level, 'dog', x0 + 800, C.GROUND - 40, x0 + 700, x0 + 980);
     B.steaksLine(level, x0 + 1000, C.GROUND - 28, 4, 44);
-    B.deco(level, 'door', x0 + 1400, C.GROUND);
+    B.neighbor(level, x0 + 1280, { tone: 2 });
     return 1700;
   }
 
@@ -87,14 +87,14 @@
     car(level, x0 + 400, x0 + 80, x0 + 1700, 1, 150);
     B.steaksLine(level, x0 + 260, C.GROUND - 90, 4, 50);
     B.steaksLine(level, x0 + 760, C.GROUND - 90, 4, 50);
-    B.deco(level, 'door', x0 + 980, C.GROUND);
+    B.hydrant(level, x0 + 980);
     B.steaksLine(level, x0 + 1500, C.GROUND - 28, 4, 44);
     return 1800;
   }
 
   function alley(level, x0) {
     B.plat(level, x0, C.GROUND, 1600, 90);
-    B.deco(level, 'door', x0 + 80, C.GROUND);
+    B.neighbor(level, x0 + 40, { tone: 1 });
     cat(level, x0 + 300, x0 + 200, x0 + 700);
     cat(level, x0 + 900, x0 + 760, x0 + 1300);
     B.steaksLine(level, x0 + 240, C.GROUND - 28, 6, 46);
@@ -113,7 +113,7 @@
     skater(level, x0 + 700, x0 + 600, x0 + 1000);
     B.steaksLine(level, x0 + 80, C.GROUND - 28, 5, 48);
     B.steaksLine(level, x0 + 1000, C.GROUND - 100, 5, 48);
-    B.deco(level, 'door', x0 + 1600, C.GROUND);
+    B.hydrant(level, x0 + 1600);
     return 1800;
   }
 
@@ -123,7 +123,7 @@
     B.plat(level, x0 + 500, C.GROUND - 80, 120, 16);
     B.steaksLine(level, x0 + 520, C.GROUND - 114, 2, 36);
     cat(level, x0 + 800, x0 + 700, x0 + 1100);
-    B.deco(level, 'door', x0 + 1200, C.GROUND);
+    B.neighbor(level, x0 + 1160, { tone: 0 });
     return 1500;
   }
 

@@ -325,7 +325,7 @@ var Billy = Billy || {};
     ctx.restore();
   }
 
-  function drawPup(ctx, x, y, t, facing) {
+  function drawPup(ctx, x, y, t, facing, bark) {
     ctx.save();
     ctx.translate(x, y + Math.sin(t * 12) * 1.2);
     ctx.scale(facing == null ? 1 : facing, 1);
@@ -345,6 +345,8 @@ var Billy = Billy || {};
     ctx.beginPath();
     ctx.ellipse(10, -4, 8, 7, 0.1, 0, Math.PI * 2);
     paint(ctx, '#e8dcc8', '#8a6a40', 2);
+    roundRect(ctx, 4, -2, 12, 5, 2);
+    paint(ctx, '#e85d4c', '#8a2a22', 1);
     ctx.beginPath();
     ctx.ellipse(6, -10, 4, 5, -0.5, 0, Math.PI * 2);
     paint(ctx, '#c48a4a', '#8a5a28', 1.5);
@@ -361,6 +363,16 @@ var Billy = Billy || {};
     ctx.beginPath();
     ctx.arc(12, -5, 1.3, 0, Math.PI * 2);
     ctx.fill();
+    if (bark) {
+      ctx.strokeStyle = '#1a3a6b';
+      ctx.lineWidth = 1.6;
+      ctx.beginPath();
+      ctx.arc(24, -6, 7 + Math.sin(t * 28) * 1.4, -0.45, 0.45);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(28, -6, 11 + Math.sin(t * 28) * 1.4, -0.35, 0.35);
+      ctx.stroke();
+    }
     ctx.restore();
   }
 
@@ -565,6 +577,104 @@ var Billy = Billy || {};
     ctx.beginPath();
     ctx.arc(x + 42, y - 50, 5, 0, Math.PI * 2);
     paint(ctx, '#ffd24a', '#b8860b', 2);
+  }
+
+  function drawYard(ctx, x, y, opt) {
+    opt = opt || {};
+    var beach = !!opt.beach;
+    var tone = opt.tone || 0;
+    var walls = beach
+      ? ['#fff6e8', '#ffe7b8', '#f3d2b3']
+      : ['#f3d2b3', '#ffe7b8', '#d4e8dc'];
+    var roofs = beach
+      ? ['#e85d4c', '#4aa3ff', '#c48a4a']
+      : ['#e85d4c', '#4aa3ff', '#6b8f71'];
+    var wall = walls[tone % walls.length];
+    var roof = roofs[tone % roofs.length];
+    var layer = opt.layer || 'all';
+
+    if (layer !== 'fence') {
+      ctx.beginPath();
+      ctx.moveTo(x - 8, y - 78);
+      ctx.lineTo(x + 62, y - 118);
+      ctx.lineTo(x + 132, y - 78);
+      ctx.closePath();
+      paint(ctx, roof, '#5a3516', 3);
+      roundRect(ctx, x, y - 80, 124, 80, 4);
+      paint(ctx, wall, '#5a3516', 3);
+      roundRect(ctx, x + 14, y - 62, 22, 22, 3);
+      paint(ctx, '#8ecfff', '#1a3a6b', 2);
+      roundRect(ctx, x + 88, y - 62, 22, 22, 3);
+      paint(ctx, '#8ecfff', '#1a3a6b', 2);
+      roundRect(ctx, x + 48, y - 48, 22, 48, 3);
+      paint(ctx, '#8b5a2b', '#3a2414', 2);
+      ctx.beginPath();
+      ctx.arc(x + 64, y - 24, 3, 0, Math.PI * 2);
+      paint(ctx, '#ffd24a', '#b8860b', 1);
+    }
+
+    if (layer !== 'house') {
+      ctx.fillStyle = '#c48a4a';
+      ctx.strokeStyle = '#5a3516';
+      ctx.lineWidth = 3;
+      ctx.fillRect(x + 18, y - 12, 6, 12);
+      ctx.strokeRect(x + 18, y - 12, 6, 12);
+      ctx.fillStyle = '#e8dcc8';
+      ctx.strokeStyle = '#8a6a40';
+      ctx.lineWidth = 2;
+      roundRect(ctx, x - 2, y - 34, 128, 22, 3);
+      ctx.fill();
+      ctx.stroke();
+      ctx.strokeStyle = '#8a6a40';
+      ctx.lineWidth = 2;
+      for (var i = 0; i < 8; i++) {
+        ctx.beginPath();
+        ctx.moveTo(x + 8 + i * 16, y - 32);
+        ctx.lineTo(x + 8 + i * 16, y - 14);
+        ctx.stroke();
+      }
+      roundRect(ctx, x + 50, y - 32, 24, 20, 2);
+      paint(ctx, '#c48a4a', '#5a3516', 2);
+      ctx.fillStyle = '#5a3516';
+      ctx.fillRect(x + 60, y - 24, 5, 8);
+    }
+  }
+
+  function drawHydrant(ctx, x, y) {
+    roundRect(ctx, x + 4, y - 28, 14, 28, 4);
+    paint(ctx, '#e85d4c', '#8a2a22', 2);
+    ctx.fillStyle = '#c45c3a';
+    ctx.fillRect(x, y - 18, 6, 8);
+    ctx.fillRect(x + 16, y - 18, 6, 8);
+    ctx.beginPath();
+    ctx.arc(x + 11, y - 30, 8, 0, Math.PI * 2);
+    paint(ctx, '#e85d4c', '#8a2a22', 2);
+    ctx.fillStyle = '#ffd24a';
+    ctx.fillRect(x + 8, y - 33, 6, 5);
+  }
+
+  function drawShower(ctx, x, y) {
+    ctx.strokeStyle = '#6b7380';
+    ctx.lineWidth = 5;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(x + 6, y);
+    ctx.lineTo(x + 6, y - 70);
+    ctx.lineTo(x + 22, y - 70);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.ellipse(x + 22, y - 66, 8, 4, 0, 0, Math.PI * 2);
+    paint(ctx, '#9aa7b8', '#4a5568', 2);
+    ctx.strokeStyle = 'rgba(74, 163, 255, 0.55)';
+    ctx.lineWidth = 1.6;
+    ctx.beginPath();
+    ctx.moveTo(x + 18, y - 62);
+    ctx.lineTo(x + 14, y - 40);
+    ctx.moveTo(x + 22, y - 62);
+    ctx.lineTo(x + 22, y - 36);
+    ctx.moveTo(x + 26, y - 62);
+    ctx.lineTo(x + 30, y - 40);
+    ctx.stroke();
   }
 
   function drawRug(ctx, rug) {
@@ -1114,6 +1224,9 @@ var Billy = Billy || {};
     fridge: drawFridge,
     plant: drawPlant,
     door: drawDoor,
+    yard: drawYard,
+    hydrant: drawHydrant,
+    shower: drawShower,
     rug: drawRug,
     houseSky: drawHouseSky,
     citySky: drawCitySky,

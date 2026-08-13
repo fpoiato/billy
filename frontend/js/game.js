@@ -250,6 +250,7 @@ var Billy = Billy || {};
     for (var n = 0; n < ns.length; n++) Billy.Enemies.updateBroom(ns[n], dt);
     Billy.Enemies.updateWaves(level.waves, dt);
     Billy.Enemies.updateSeagulls(level.seagulls, dt);
+    Billy.Enemies.updateYardDogs(level.yardDogs || [], p, dt);
     Billy.Fx.update(state.fx, dt);
     collectSteaks(dt);
     if (!p.grabbed && !p.kissing) collideHazards();
@@ -363,6 +364,9 @@ var Billy = Billy || {};
     if (d.kind === 'fridge') D.fridge(ctx, x, d.y);
     if (d.kind === 'plant') D.plant(ctx, x, d.y);
     if (d.kind === 'door') D.door(ctx, x, d.y);
+    if (d.kind === 'yard') D.yard(ctx, x, d.y, { beach: d.beach, tone: d.tone, layer: 'house' });
+    if (d.kind === 'hydrant') D.hydrant(ctx, x, d.y);
+    if (d.kind === 'shower') D.shower(ctx, x, d.y);
     if (d.kind === 'bed') D.bed(ctx, x, d.y);
     if (d.kind === 'toy') {
       if (state.player.kissing && state.player.kissDuck === d) return;
@@ -424,6 +428,30 @@ var Billy = Billy || {};
       if (cr.species === 'dog') D.pup(ctx, cx, cy, state.t, cr.dir);
       else if (cr.species === 'bird') D.bird(ctx, cx, cy, state.t, cr.dir);
       else D.cat(ctx, cx, cy, state.t, cr.dir);
+    }
+    for (var yd = 0; yd < (level.yardDogs || []).length; yd++) {
+      var dog = level.yardDogs[yd];
+      var dcx = worldX(dog.x + dog.w / 2);
+      var dcy = dog.y + dog.h / 2;
+      if (dog.postX != null) {
+        ctx.strokeStyle = '#6b7380';
+        ctx.lineWidth = 2;
+        ctx.setLineDash([4, 3]);
+        ctx.beginPath();
+        ctx.moveTo(worldX(dog.postX), C.GROUND - 10);
+        ctx.lineTo(dcx, dcy + 4);
+        ctx.stroke();
+        ctx.setLineDash([]);
+      }
+      D.pup(ctx, dcx, dcy, state.t, dog.dir, dog.barking);
+    }
+    for (var yf = 0; yf < (level.decos || []).length; yf++) {
+      if (level.decos[yf].kind !== 'yard') continue;
+      D.yard(ctx, worldX(level.decos[yf].x), level.decos[yf].y, {
+        beach: level.decos[yf].beach,
+        tone: level.decos[yf].tone,
+        layer: 'fence',
+      });
     }
     for (var v = 0; v < (level.vacuums || []).length; v++) {
       var vac = level.vacuums[v];
