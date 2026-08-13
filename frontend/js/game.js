@@ -299,7 +299,7 @@ var Billy = Billy || {};
 
     var pl = state.player;
     D.shadow(ctx, worldX(pl.x + pl.w / 2), C.GROUND + 4, !pl.onGround);
-    D.billy(ctx, worldX(pl.x + pl.w / 2), pl.y + pl.h - 18, {
+    D.billy(ctx, worldX(pl.x + pl.w / 2), pl.y + pl.h, {
       t: state.t,
       facing: pl.facing,
       run: Math.abs(pl.vx) > 40 && pl.onGround,
@@ -339,8 +339,8 @@ var Billy = Billy || {};
     D.floor(ctx, { x: state.t * 30 }, false, C.GROUND, C.WIDTH, C.HEIGHT);
     ctx.fillStyle = 'rgba(12,24,48,0.25)';
     ctx.fillRect(0, 0, C.WIDTH, C.HEIGHT);
-    D.billy(ctx, C.WIDTH / 2 - 50, 250, { t: state.t, facing: 1, run: true });
-    D.duck(ctx, C.WIDTH / 2 + 40, 258, state.t, 1);
+    D.billy(ctx, C.WIDTH / 2 - 40, C.GROUND, { t: state.t, facing: 1, run: true });
+    D.duck(ctx, C.WIDTH / 2 + 50, C.GROUND - 4, state.t, 1);
     ctx.textAlign = 'center';
     ctx.fillStyle = '#fff';
     ctx.strokeStyle = '#1a3a6b';
@@ -376,13 +376,13 @@ var Billy = Billy || {};
   function drawEnd(kind) {
     D.houseSky(ctx, { x: 0 }, kind === 'gameover', 1, C.WIDTH, C.HEIGHT, C.GROUND);
     D.floor(ctx, { x: 0 }, kind === 'gameover', C.GROUND, C.WIDTH, C.HEIGHT);
-    D.billy(ctx, C.WIDTH / 2 - 20, 240, {
+    D.billy(ctx, C.WIDTH / 2 - 20, C.GROUND, {
       t: state.t,
       facing: 1,
       scared: kind === 'gameover',
       run: kind === 'clear',
     });
-    if (kind === 'clear') D.duck(ctx, C.WIDTH / 2 + 50, 250, state.t, 0.85);
+    if (kind === 'clear') D.duck(ctx, C.WIDTH / 2 + 50, C.GROUND - 4, state.t, 0.85);
     ctx.textAlign = 'center';
     ctx.fillStyle = '#fff';
     ctx.strokeStyle = '#1a3a6b';
