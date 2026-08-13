@@ -375,6 +375,9 @@ var Billy = Billy || {};
     if (d.kind === 'palm') D.palm(ctx, x, d.y);
     if (d.kind === 'castle') D.castle(ctx, x, d.y);
     if (d.kind === 'gate') D.gate(ctx, x, d.y);
+    if (d.kind === 'grandma') {
+      D.granny(ctx, x, d.y, state.t, { feed: state.player.eating });
+    }
   }
 
   function drawWorld() {
@@ -405,7 +408,7 @@ var Billy = Billy || {};
 
     var puddles = level.puddles || [];
     for (var pd = 0; pd < puddles.length; pd++) {
-      D.puddle(ctx, worldX(puddles[pd].x), puddles[pd].y, state.t);
+      D.puddle(ctx, worldX(puddles[pd].x), puddles[pd].y, state.t, puddles[pd].kind);
     }
 
     if (level.checkpoint) {
@@ -546,13 +549,16 @@ var Billy = Billy || {};
       D.billy(ctx, worldX(billyX), pl.y + pl.h, {
         t: state.t,
         facing: pl.facing,
-        run: Math.abs(pl.vx) > 40 && pl.onGround && !pl.peeing && !pl.grabbed,
+        run: Math.abs(pl.vx) > 40 && pl.onGround && !pl.peeing && !pl.grabbed && !pl.eating && !pl.pooping,
         air: !pl.onGround && !pl.grabbed,
         hurt: pl.invuln > 0 && !pl.grabbed,
         scared: (night && !(state.boss && state.boss.done)) || pl.grabbed,
         pee: pl.peeing && !pl.grabbed,
+        poop: pl.pooping && !pl.grabbed,
+        eat: pl.eating && !pl.grabbed,
+        fat: pl.fat || 0,
         bulge: pl.bulge || 0,
-        bark: pl.barking,
+        bark: pl.barking && !pl.eating && !pl.pooping,
       });
     }
 
