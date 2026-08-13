@@ -10,9 +10,10 @@ var Billy = Billy || {};
     if (e.x > e.x2) { e.x = e.x2; e.dir = -1; }
   }
 
-  function updateHearts(hearts, dt, platforms) {
-    for (var i = 0; i < hearts.length; i++) {
-      var h = hearts[i];
+  function updateCritters(list, dt, platforms) {
+    if (!list) return;
+    for (var i = 0; i < list.length; i++) {
+      var h = list[i];
       if (h.dead) continue;
       h.t = (h.t || 0) + dt;
       if (h.x1 != null) patrolX(h, dt);
@@ -66,7 +67,7 @@ var Billy = Billy || {};
   }
 
   function bodyOf(kind, e) {
-    if (kind === 'heart' || kind === 'skater' || kind === 'cat' || kind === 'crab' || kind === 'gull' || kind === 'yarn' || kind === 'vase') {
+    if (kind === 'critter' || kind === 'skater' || kind === 'cat' || kind === 'crab' || kind === 'gull' || kind === 'yarn' || kind === 'vase') {
       return { x: e.x, y: e.y, w: e.w, h: e.h };
     }
     if (kind === 'vacuum') return { x: e.x - C.VACUUM_W / 2, y: e.y - C.VACUUM_H / 2, w: C.VACUUM_W, h: C.VACUUM_H };
@@ -79,7 +80,7 @@ var Billy = Billy || {};
   }
 
   Billy.Enemies = {
-    updateHearts: updateHearts,
+    updateCritters: updateCritters,
     updateVacuum: updateVacuum,
     updateBroom: updateBroom,
     updateList: updateList,

@@ -308,17 +308,77 @@ var Billy = Billy || {};
     ctx.restore();
   }
 
-  function drawHeart(ctx, x, y, t) {
+  function drawPup(ctx, x, y, t, facing) {
     ctx.save();
-    ctx.translate(x, y + Math.sin(t * 8) * 1.5);
+    ctx.translate(x, y + Math.sin(t * 12) * 1.2);
+    ctx.scale(facing == null ? 1 : facing, 1);
+    ctx.strokeStyle = '#8a5a28';
+    ctx.lineWidth = 3;
+    ctx.lineCap = 'round';
     ctx.beginPath();
-    ctx.moveTo(0, 8);
-    ctx.bezierCurveTo(-16, -2, -10, -16, 0, -8);
-    ctx.bezierCurveTo(10, -16, 16, -2, 0, 8);
-    paint(ctx, '#ff5a7a', '#a31d3a', 3);
-    ctx.fillStyle = 'rgba(255,255,255,0.55)';
+    ctx.moveTo(-14, 0);
+    ctx.quadraticCurveTo(-20, -8 + Math.sin(t * 14) * 4, -16, -12);
+    ctx.stroke();
     ctx.beginPath();
-    ctx.ellipse(-4, -4, 3, 2, -0.4, 0, Math.PI * 2);
+    ctx.ellipse(-2, 2, 12, 8, -0.15, 0, Math.PI * 2);
+    paint(ctx, '#e8dcc8', '#8a6a40', 2);
+    ctx.beginPath();
+    ctx.ellipse(-6, 2, 3.5, 2.5, 0, 0, Math.PI * 2);
+    paint(ctx, '#c48a4a', '#8a5a28', 1);
+    ctx.beginPath();
+    ctx.ellipse(10, -4, 8, 7, 0.1, 0, Math.PI * 2);
+    paint(ctx, '#e8dcc8', '#8a6a40', 2);
+    ctx.beginPath();
+    ctx.ellipse(6, -10, 4, 5, -0.5, 0, Math.PI * 2);
+    paint(ctx, '#c48a4a', '#8a5a28', 1.5);
+    ctx.beginPath();
+    ctx.ellipse(14, -9, 3.2, 4.5, 0.4, 0, Math.PI * 2);
+    paint(ctx, '#c48a4a', '#8a5a28', 1.5);
+    ctx.beginPath();
+    ctx.ellipse(16, -2, 4, 3, 0.1, 0, Math.PI * 2);
+    paint(ctx, '#f3e6d0', '#c4a070', 1);
+    ctx.beginPath();
+    ctx.arc(18, -3, 1.4, 0, Math.PI * 2);
+    paint(ctx, '#1a120c', '#1a120c', 1);
+    ctx.fillStyle = '#1a120c';
+    ctx.beginPath();
+    ctx.arc(12, -5, 1.3, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
+
+  function drawBird(ctx, x, y, t, facing) {
+    ctx.save();
+    var hop = Math.abs(Math.sin(t * 14)) * 3;
+    ctx.translate(x, y - hop);
+    ctx.scale(facing == null ? 1 : facing, 1);
+    ctx.strokeStyle = '#c79212';
+    ctx.lineWidth = 1.6;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(-3, 6);
+    ctx.lineTo(-4, 10);
+    ctx.moveTo(3, 6);
+    ctx.lineTo(4, 10);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.ellipse(0, 1, 8, 6, 0, 0, Math.PI * 2);
+    paint(ctx, '#ffe14a', '#c79212', 2);
+    ctx.beginPath();
+    ctx.ellipse(-1, 2, 5, 3, -0.3, 0, Math.PI * 2);
+    paint(ctx, '#ffd24a', '#c79212', 1);
+    ctx.beginPath();
+    ctx.arc(7, -3, 5, 0, Math.PI * 2);
+    paint(ctx, '#ffe14a', '#c79212', 2);
+    ctx.beginPath();
+    ctx.moveTo(11, -3);
+    ctx.lineTo(16, -1);
+    ctx.lineTo(11, 0);
+    ctx.closePath();
+    paint(ctx, '#e85d4c', '#8a2a22', 1);
+    ctx.fillStyle = '#1a120c';
+    ctx.beginPath();
+    ctx.arc(8, -4, 1.2, 0, Math.PI * 2);
     ctx.fill();
     ctx.restore();
   }
@@ -727,9 +787,10 @@ var Billy = Billy || {};
     ctx.restore();
   }
 
-  function drawCat(ctx, x, y, t) {
+  function drawCat(ctx, x, y, t, facing) {
     ctx.save();
     ctx.translate(x, y + Math.sin(t * 10) * 1);
+    ctx.scale(facing == null ? 1 : facing, 1);
     roundRect(ctx, -12, -6, 24, 14, 6);
     paint(ctx, '#c48a4a', '#6b3f1c', 2);
     ctx.beginPath();
@@ -1022,7 +1083,8 @@ var Billy = Billy || {};
     loveHeart: drawLoveHeart,
     censored: drawCensored,
     steak: drawSteak,
-    heart: drawHeart,
+    pup: drawPup,
+    bird: drawBird,
     vacuum: drawVacuum,
     broom: drawBroom,
     monster: drawMonster,

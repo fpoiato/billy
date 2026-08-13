@@ -52,7 +52,7 @@
     B.deco(level, 'door', x0 + 220, C.GROUND);
     B.steaksLine(level, x0 + 320, C.GROUND - 28, 5, 48);
     B.deco(level, 'castle', x0 + 700, C.GROUND);
-    B.heart(level, x0 + 900, C.GROUND - 40, x0 + 780, x0 + 1100);
+    B.critter(level, 'dog', x0 + 900, C.GROUND - 40, x0 + 780, x0 + 1100);
     B.steaksLine(level, x0 + 1200, C.GROUND - 28, 5, 44);
     return 1600;
   }
@@ -93,7 +93,7 @@
     B.steaksLine(level, x0 + 320, C.GROUND - 124, 2, 36);
     B.steaksLine(level, x0 + 580, C.GROUND - 184, 2, 36);
     B.steaksLine(level, x0 + 840, C.GROUND - 124, 2, 36);
-    B.heart(level, x0 + 1200, C.GROUND - 40, x0 + 1050, x0 + 1450);
+    B.critter(level, 'bird', x0 + 1200, C.GROUND - 40, x0 + 1050, x0 + 1450);
     B.deco(level, 'palm', x0 + 1500, C.GROUND);
     return 1700;
   }
