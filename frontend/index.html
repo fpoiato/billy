@@ -1,25 +1,38 @@
 <!doctype html>
-<html lang="en">
+<html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta name="theme-color" content="#1a3a6b" />
-    <title>Billy, the crazy dog</title>
-    <link rel="stylesheet" href="/src/style.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
+    <meta name="theme-color" content="#4aa3ff" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <title>Billy, the Crazy Dog</title>
+    <link rel="stylesheet" href="css/game.css" />
   </head>
   <body>
-    <canvas id="game"></canvas>
-    <div id="hud">
-      <div id="title-card">
-        <h1>Billy, the crazy dog</h1>
-        <p>Jump to run. Space / tap / click.</p>
-        <button id="start" type="button">Start</button>
+    <div id="wrap">
+      <canvas id="game" width="960" height="540"></canvas>
+      <div id="touch" hidden>
+        <div class="dpad">
+          <button type="button" id="btn-left" aria-label="Esquerda">◀</button>
+          <button type="button" id="btn-right" aria-label="Direita">▶</button>
+        </div>
+        <button type="button" id="btn-jump" aria-label="Pular">PULAR</button>
       </div>
-      <div id="play-hud" hidden>
-        <span id="score">0</span>
-      </div>
-      <footer>v<span id="version"></span></footer>
     </div>
-    <script type="module" src="/src/main.ts"></script>
+    <script src="js/version.js"></script>
+    <script src="js/config.js"></script>
+    <script src="js/physics.js"></script>
+    <script src="js/audio.js"></script>
+    <script src="js/input.js"></script>
+    <script src="js/draw.js"></script>
+    <script src="js/player.js"></script>
+    <script src="js/entities.js"></script>
+    <script src="js/enemies.js"></script>
+    <script src="js/boss.js"></script>
+    <script src="js/hud.js"></script>
+    <script src="js/camera.js"></script>
+    <script src="js/levels/house.js"></script>
+    <script src="js/game.js"></script>
+    <script src="js/main.js"></script>
   </body>
 </html>
