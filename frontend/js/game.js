@@ -60,6 +60,7 @@ var Billy = Billy || {};
     state = freshPlay();
     Billy.Audio.music('day');
     setTouch(true);
+    Billy.Display.requestFullscreen();
   }
 
   function respawn() {
@@ -341,14 +342,16 @@ var Billy = Billy || {};
     ctx.fillRect(0, 0, C.WIDTH, C.HEIGHT);
     D.billy(ctx, C.WIDTH / 2 - 40, C.GROUND, { t: state.t, facing: 1, run: true });
     D.duck(ctx, C.WIDTH / 2 + 50, C.GROUND - 4, state.t, 1);
+    var titlePx = C.WIDTH < 700 ? 28 : 48;
+    var subPx = C.WIDTH < 700 ? 14 : 20;
     ctx.textAlign = 'center';
     ctx.fillStyle = '#fff';
     ctx.strokeStyle = '#1a3a6b';
-    ctx.lineWidth = 8;
-    ctx.font = 'bold 48px Trebuchet MS, sans-serif';
+    ctx.lineWidth = C.WIDTH < 700 ? 5 : 8;
+    ctx.font = 'bold ' + titlePx + 'px Trebuchet MS, sans-serif';
     ctx.strokeText('Billy, the Crazy Dog', C.WIDTH / 2, 120);
     ctx.fillText('Billy, the Crazy Dog', C.WIDTH / 2, 120);
-    ctx.font = '20px Trebuchet MS, sans-serif';
+    ctx.font = subPx + 'px Trebuchet MS, sans-serif';
     ctx.lineWidth = 4;
     ctx.strokeText('Ajude o Yorkshire a achar o Patinho Amarelo!', C.WIDTH / 2, 168);
     ctx.fillText('Ajude o Yorkshire a achar o Patinho Amarelo!', C.WIDTH / 2, 168);
@@ -403,7 +406,9 @@ var Billy = Billy || {};
   }
 
   function render() {
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    Billy.Display.apply(ctx);
+    ctx.lineJoin = 'round';
+    ctx.lineCap = 'round';
     ctx.clearRect(0, 0, C.WIDTH, C.HEIGHT);
     if (state.screen === 'menu') {
       drawMenu();
