@@ -12,9 +12,9 @@ concurrency:
 
 jobs:
   lint-test:
-    name: Typecheck, test, build
+    name: Test
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 10
 
     steps:
       - name: Checkout
@@ -26,34 +26,28 @@ jobs:
         if: github.event_name == 'pull_request'
         run: |
           git fetch --no-tags origin "${{ github.base_ref }}"
-          if git diff --quiet "origin/${{ github.base_ref }}...HEAD" -- frontend/src/version.ts; then
+          if git diff --quiet "origin/${{ github.base_ref }}...HEAD" -- frontend/js/version.js; then
             echo "::error::Bump APP_VERSION on every PR so players can see they have the latest build."
             echo "Run: npm run bump:version"
-            echo "File: frontend/src/version.ts"
+            echo "File: frontend/js/version.js"
             exit 1
           fi
-          grep -E "export const APP_VERSION = '[0-9]+\.[0-9]+\.[0-9]+';" frontend/src/version.ts
+          grep -E "Billy.APP_VERSION = '[0-9]+\.[0-9]+\.[0-9]+';" frontend/js/version.js
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: "20"
-          cache: npm
-
-      - name: Install dependencies
-        run: |
-          unset NPM_TOKEN NODE_AUTH_TOKEN || true
-          npm config set registry https://registry.npmjs.org/
-          npm ci
-
-      - name: Typecheck
-        run: npm run typecheck
 
       - name: Unit tests
-        run: npm test
+        run: node --test tests/*.test.mjs
 
-      - name: Production build
-        run: npm run build
+      - name: Check static game files
+        run: |
+          test -f frontend/index.html
+          test -f frontend/js/game.js
+          test -f frontend/js/levels/house.js
+          test -f frontend/css/game.css
 
   trigger-pipeline:
     name: Trigger CodePipeline

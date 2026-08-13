@@ -1,0 +1,43 @@
+var Billy = Billy || {};
+
+Billy.CONFIG = {
+  WIDTH: 960,
+  HEIGHT: 540,
+  GROUND: 460,
+
+  // Movimento estilo Sonic: acelera ao segurar o lado.
+  ACCEL: 980,
+  AIR_ACCEL: 620,
+  FRICTION: 0.78,
+  RUG_FRICTION: 0.985,
+  MAX_SPEED: 360,
+  MAX_AIR_SPEED: 380,
+  SKID_THRESHOLD: 180,
+  GRAVITY: 1950,
+  JUMP_V: -640,
+  STOMP_BOUNCE: -380,
+  COYOTE: 0.12,
+  JUMP_BUFFER: 0.12,
+
+  PLAYER_W: 30,
+  PLAYER_H: 38,
+  LIVES: 3,
+  INVULN: 2,
+  STEAKS_PER_LIFE: 50,
+  STEAKS_ON_HIT: 10,
+
+  HEART_W: 28,
+  HEART_H: 26,
+  HEART_SPEED: 70,
+
+  VACUUM_W: 54,
+  VACUUM_H: 28,
+  BROOM_W: 70,
+  BROOM_H: 14,
+
+  MONSTER_W: 36,
+  MONSTER_H: 28,
+  BOSS_MONSTERS: 3,
+
+  START_LIVES: 3,
+};

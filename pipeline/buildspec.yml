@@ -1,32 +1,25 @@
 version: 0.2
 
-env:
-  variables:
-    NODE_OPTIONS: "--max-old-space-size=4096"
-
 phases:
   install:
     runtime-versions:
       nodejs: 20
     commands:
-      - echo "Node $(node -v) / npm $(npm -v)"
-      - unset NPM_TOKEN NODE_AUTH_TOKEN || true
-      - npm config delete //registry.npmjs.org/:_authToken || true
-      - npm config set registry https://registry.npmjs.org/
+      - echo "Node $(node -v)"
 
   pre_build:
     commands:
-      - npm ci
       - export FRONTEND_BUCKET=$(aws ssm get-parameter --name "$FRONTEND_BUCKET_PARAM" --query Parameter.Value --output text)
       - export CLOUDFRONT_DISTRIBUTION_ID=$(aws ssm get-parameter --name "$CLOUDFRONT_DISTRIBUTION_ID_PARAM" --query Parameter.Value --output text)
       - echo "FRONTEND_BUCKET=${FRONTEND_BUCKET}"
       - echo "CLOUDFRONT_DISTRIBUTION_ID=${CLOUDFRONT_DISTRIBUTION_ID}"
+      - node --test tests/*.test.mjs
+      - test -f frontend/index.html
+      - test -f frontend/js/game.js
 
   build:
     commands:
-      - npm run build
-      - test -f frontend/dist/index.html
-      - aws s3 sync frontend/dist "s3://${FRONTEND_BUCKET}" --delete
+      - aws s3 sync frontend "s3://${FRONTEND_BUCKET}" --delete --exclude "dist/*" --exclude "node_modules/*" --exclude "src/*"
       - aws cloudfront create-invalidation --distribution-id "$CLOUDFRONT_DISTRIBUTION_ID" --paths "/*"
 
   post_build:
@@ -35,5 +28,5 @@ phases:
 
 artifacts:
   files:
-    - frontend/dist/**/*
+    - frontend/index.html
   discard-paths: yes
