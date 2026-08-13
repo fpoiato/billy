@@ -43,6 +43,9 @@ var Billy = Billy || {};
       fatT: 0,
       pooping: false,
       poopT: 0,
+      dancing: false,
+      danceT: 0,
+      danceQueued: false,
     };
   }
 
@@ -76,6 +79,10 @@ var Billy = Billy || {};
   }
 
   function updatePee(p, input, level, dt) {
+    if (p.dancing || p.danceQueued) {
+      p.stillT = 0;
+      return;
+    }
     if (p.peeCooldown > 0) p.peeCooldown -= dt;
     if (p.peeing) {
       p.peeT -= dt;
@@ -147,7 +154,7 @@ var Billy = Billy || {};
       if (h.life <= 0) p.kissHearts.splice(i, 1);
     }
 
-    if (p.grabbed || p.peeing || p.eating || p.pooping) {
+    if (p.grabbed || p.peeing || p.eating || p.pooping || p.dancing) {
       p.kissing = false;
       p.kissDuck = null;
       return;
@@ -232,7 +239,7 @@ var Billy = Billy || {};
       return;
     }
 
-    if (p.fat > 0 || p.peeing || p.kissing || p.grabbed) {
+    if (p.fat > 0 || p.peeing || p.kissing || p.grabbed || p.dancing) {
       p.eatWait = 0;
       return;
     }
@@ -317,7 +324,7 @@ var Billy = Billy || {};
     if (p.barkT > 0) p.barkT -= dt;
     if (p.barkCd > 0) p.barkCd -= dt;
 
-    if (p.kissing) {
+    if (p.kissing || p.dancing) {
       p.barking = false;
       p.barkT = 0;
       return false;
@@ -335,6 +342,41 @@ var Billy = Billy || {};
     return near;
   }
 
+  function startDance(p, duration) {
+    if (!p || p.dancing) return;
+    p.danceT = duration == null ? (C.AURA_TIME || 2) : duration;
+    p.danceQueued = true;
+    p.vx = 0;
+    p.peeing = false;
+    p.barking = false;
+    if (p.onGround) {
+      p.dancing = true;
+      p.danceQueued = false;
+    }
+  }
+
+  function updateDance(p, dt) {
+    if (p.dancing) {
+      p.danceT -= dt;
+      p.vx = 0;
+      if (p.onGround) p.vy = 0;
+      if (p.danceT <= 0) {
+        p.dancing = false;
+        p.danceT = 0;
+        p.danceQueued = false;
+      }
+      return true;
+    }
+    if (p.danceQueued && p.onGround) {
+      p.dancing = true;
+      p.danceQueued = false;
+      p.vx = 0;
+      p.vy = 0;
+      return true;
+    }
+    return false;
+  }
+
   function update(p, input, level, dt) {
     p.animT += dt;
     if (p.invuln > 0) p.invuln -= dt;
@@ -344,13 +386,16 @@ var Billy = Billy || {};
       p.vx = 0;
       p.vy = 0;
       p.kissing = false;
+      p.dancing = false;
+      p.danceQueued = false;
       return;
     }
 
+    updateDance(p, dt);
     updatePee(p, input, level, dt);
     updateEat(p, input, level, dt);
     updateKiss(p, input, level, dt);
-    var dir = p.peeing || p.kissing || p.eating || p.pooping ? 0 : input.dir;
+    var dir = p.peeing || p.kissing || p.eating || p.pooping || p.dancing ? 0 : input.dir;
 
     if (p.onGround) p.coyote = C.COYOTE;
     else p.coyote -= dt;
@@ -379,7 +424,7 @@ var Billy = Billy || {};
     if (level.leash) max *= C.LEASH_SPEED;
     p.vx = P.clamp(p.vx, -max, max);
 
-    if (p.eating || p.pooping) p.jumpBuf = 0;
+    if (p.eating || p.pooping || p.dancing) p.jumpBuf = 0;
 
     if (p.jumpBuf > 0 && p.coyote > 0) {
       p.vy = C.JUMP_V;
@@ -389,7 +434,12 @@ var Billy = Billy || {};
       Billy.Audio.jump();
     }
 
-    p.vy += C.GRAVITY * dt;
+    if (p.dancing && p.onGround) {
+      p.vx = 0;
+      p.vy = 0;
+    } else {
+      p.vy += C.GRAVITY * dt;
+    }
     P.moveAndCollide(p, level.platforms, dt);
 
     if (p.x < 0) {
@@ -454,6 +504,8 @@ var Billy = Billy || {};
     nearGrandma: nearGrandma,
     nearBarkThing: nearBarkThing,
     updateBark: updateBark,
+    startDance: startDance,
+    updateDance: updateDance,
     peeZone: peeZone,
     hit: hit,
     addSteaks: addSteaks,

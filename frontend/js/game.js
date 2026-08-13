@@ -48,6 +48,7 @@ var Billy = Billy || {};
       results: null,
       coming: null,
       goalHit: false,
+      aura: Billy.Aura ? Billy.Aura.create() : { active: false, t: 0, age: 0 },
     };
     Billy.Audio.music(level.music || 'day');
     if (level.leash && Billy.Dad) {
@@ -174,11 +175,13 @@ var Billy = Billy || {};
   function collectSteaks(dt) {
     var p = state.player;
     var list = state.level.steaks;
+    var n = 0;
     for (var i = 0; i < list.length; i++) {
       var s = list[i];
       if (s.taken) continue;
       if (P.aabb(p, { x: s.x - 9, y: s.y - 7, w: 18, h: 14 })) {
         s.taken = true;
+        n += 1;
         Billy.Player.addSteaks(p, 1);
       }
     }
@@ -190,11 +193,13 @@ var Billy = Billy || {};
         Billy.Player.addSteaks(p, 1);
       }
     }
+    return n;
   }
 
   function collideHazards() {
     var p = state.player;
     var level = state.level;
+    var killed = 0;
 
     function hitList(list, kind, opt) {
       opt = opt || {};
@@ -214,6 +219,7 @@ var Billy = Billy || {};
           Billy.Audio.stomp();
           if (opt.kill) {
             e.dead = true;
+            killed += 1;
             Billy.Fx.sparkleBurst(state.fx.sparkles, body.x + body.w / 2, body.y, '#ffd24a');
           }
         } else {
@@ -235,6 +241,7 @@ var Billy = Billy || {};
     hitList(level.needles, 'needle');
     hitList(level.yarns, 'yarn', { kill: true });
     hitList(level.vases, 'vase', { kill: true });
+    return killed;
   }
 
   function updateWorld(dt, input) {
@@ -264,8 +271,20 @@ var Billy = Billy || {};
     Billy.Enemies.updateSeagulls(level.seagulls, dt);
     Billy.Enemies.updateYardDogs(level.yardDogs || [], p, dt);
     Billy.Fx.update(state.fx, dt);
-    collectSteaks(dt);
-    if (!p.grabbed && !p.kissing && !p.bathing) collideHazards();
+    var gotSteaks = collectSteaks(dt);
+    var killed = 0;
+    if (!p.grabbed && !p.kissing && !p.bathing && !p.dancing && !p.danceQueued) killed = collideHazards();
+    if (Billy.Aura && (gotSteaks || killed)) {
+      if (Billy.Aura.tryStart(state, { steaks: gotSteaks > 0, enemies: killed > 0 })) {
+        Billy.Player.startDance(p, state.aura.t);
+        if (Billy.Audio && Billy.Audio.aura) Billy.Audio.aura();
+        var ax = p.x + p.w / 2;
+        var ay = p.y + p.h / 2;
+        Billy.Fx.sparkleBurst(state.fx.sparkles, ax, ay, '#ffe14a');
+        Billy.Fx.sparkleBurst(state.fx.sparkles, ax, ay, '#c45aff');
+      }
+    }
+    if (Billy.Aura) Billy.Aura.update(state.aura, dt);
 
     if (level.checkpoint && !level.checkpoint.used && p.x + p.w > level.checkpoint.x) {
       level.checkpoint.used = true;
@@ -655,17 +674,18 @@ var Billy = Billy || {};
       D.billy(ctx, worldX(billyX), pl.y + pl.h, {
         t: state.t,
         facing: pl.facing,
-        run: Math.abs(pl.vx) > 40 && pl.onGround && !pl.peeing && !pl.grabbed && !pl.eating && !pl.pooping,
-        air: !pl.onGround && !pl.grabbed,
-        hurt: pl.invuln > 0 && !pl.grabbed,
+        run: Math.abs(pl.vx) > 40 && pl.onGround && !pl.peeing && !pl.grabbed && !pl.eating && !pl.pooping && !pl.dancing,
+        air: !pl.onGround && !pl.grabbed && !pl.dancing,
+        hurt: pl.invuln > 0 && !pl.grabbed && !pl.dancing,
         scared: (night && !(state.boss && state.boss.done)) || pl.grabbed || pl.bathing,
         pee: pl.peeing && !pl.grabbed,
         poop: pl.pooping && !pl.grabbed,
         eat: pl.eating && !pl.grabbed,
         fat: pl.fat || 0,
         bulge: pl.bulge || 0,
-        bark: pl.barking && !pl.eating && !pl.pooping && !pl.bathing,
+        bark: pl.barking && !pl.eating && !pl.pooping && !pl.bathing && !pl.dancing,
         wet: !!(pl.bathing || pl.wet > 0),
+        dance: !!pl.dancing,
       });
     }
 
@@ -815,6 +835,7 @@ var Billy = Billy || {};
     drawWorld();
     Billy.Hud.draw(ctx, state);
     if (state.nightIntro > 0) drawBanner('Sozinho em casa à noite...');
+    else if (state.aura && state.aura.active && D.auraBanner) D.auraBanner(ctx, state.aura, C.WIDTH);
     else if (state.bannerT > 0 && state.banner) drawBanner(state.banner);
     else if (state.intro > 0.4) drawBanner((state.level && state.level.introBanner) || 'O Patinho Amarelo fugiu!');
   }

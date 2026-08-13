@@ -51,6 +51,136 @@ var Billy = Billy || {};
     drawPaw(ctx, footX, footY);
   }
 
+  function drawBillyDancePose(ctx, t, facing) {
+    var bounce = Math.abs(Math.sin(t * 12)) * 3.6;
+    var pump = Math.sin(t * 16);
+    ctx.translate(0, -bounce);
+
+    ctx.fillStyle = 'rgba(255, 210, 70, 0.3)';
+    ctx.beginPath();
+    ctx.ellipse(0, -44, 34 + Math.sin(t * 8) * 3, 52, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = 'rgba(170, 80, 255, 0.18)';
+    ctx.beginPath();
+    ctx.ellipse(0, -44, 24, 44, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.strokeStyle = '#d7a45c';
+    ctx.lineWidth = 5.5;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(-7, -24);
+    ctx.lineTo(-10, -3);
+    ctx.moveTo(6, -24);
+    ctx.lineTo(8, -3);
+    ctx.stroke();
+    ctx.strokeStyle = '#c48a4a';
+    ctx.lineWidth = 3.5;
+    ctx.beginPath();
+    ctx.moveTo(-7, -23);
+    ctx.lineTo(-10, -4);
+    ctx.moveTo(6, -23);
+    ctx.lineTo(8, -4);
+    ctx.stroke();
+    drawPaw(ctx, -10, -1);
+    drawPaw(ctx, 8, -1);
+
+    ctx.beginPath();
+    ctx.ellipse(0, -40, 14, 20, -0.06, 0, Math.PI * 2);
+    paint(ctx, '#6d5b4a', '#3d2e22', 3);
+    ctx.beginPath();
+    ctx.ellipse(-5, -42, 8, 14, -0.2, 0, Math.PI * 2);
+    paint(ctx, '#5a6a78', '#3a4450', 2);
+    ctx.beginPath();
+    ctx.ellipse(6, -38, 7, 12, 0.16, 0, Math.PI * 2);
+    paint(ctx, '#e8c48a', '#a07840', 2);
+
+    var ly = -64 + pump * 12;
+    var ry = -64 + Math.sin(t * 16 + 0.35) * 12;
+    ctx.strokeStyle = '#d7a45c';
+    ctx.lineWidth = 5.2;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(-8, -52);
+    ctx.quadraticCurveTo(-18, -58, -16, ly);
+    ctx.moveTo(8, -52);
+    ctx.quadraticCurveTo(18, -58, 16, ry);
+    ctx.stroke();
+    drawPaw(ctx, -16, ly);
+    drawPaw(ctx, 16, ry);
+
+    ctx.save();
+    ctx.scale(facing, 1);
+    ctx.font = 'bold 15px Trebuchet MS, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.lineWidth = 3.2;
+    ctx.strokeStyle = '#7a2cff';
+    ctx.fillStyle = '#ffe14a';
+    ctx.strokeText('6', -26 * facing, ly - 12);
+    ctx.fillText('6', -26 * facing, ly - 12);
+    ctx.strokeText('7', 26 * facing, ry - 12);
+    ctx.fillText('7', 26 * facing, ry - 12);
+    ctx.restore();
+
+    ctx.beginPath();
+    ctx.ellipse(-6, -70, 6, 11, -0.5, 0, Math.PI * 2);
+    paint(ctx, '#c48a4a', '#6b3f1c', 2.5);
+    ctx.beginPath();
+    ctx.ellipse(8, -69, 5.5, 10, 0.45, 0, Math.PI * 2);
+    paint(ctx, '#c48a4a', '#6b3f1c', 2.5);
+    ctx.beginPath();
+    ctx.ellipse(-6, -69, 3, 6, -0.5, 0, Math.PI * 2);
+    paint(ctx, '#f0c4b0', '#c48a4a', 1);
+    ctx.beginPath();
+    ctx.ellipse(8, -68, 2.8, 5.5, 0.45, 0, Math.PI * 2);
+    paint(ctx, '#f0c4b0', '#c48a4a', 1);
+
+    ctx.beginPath();
+    ctx.ellipse(2, -64, 13, 12, 0.06, 0, Math.PI * 2);
+    paint(ctx, '#e8c07a', '#8a5a28', 3);
+    ctx.beginPath();
+    ctx.ellipse(1, -72, 7, 5, -0.15, 0, Math.PI * 2);
+    paint(ctx, '#d4a05a', '#8a5a28', 2);
+
+    roundRect(ctx, -8, -54, 16, 6, 3);
+    paint(ctx, '#2b6cff', '#163a8a', 2);
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(-5, -52.5, 4, 3.2);
+    ctx.fillRect(1, -52.5, 4, 3.2);
+    ctx.beginPath();
+    ctx.arc(0, -47, 5.2, 0, Math.PI * 2);
+    paint(ctx, '#ffd24a', '#b8860b', 2);
+    ctx.fillStyle = '#5a3516';
+    ctx.font = 'bold 6px Trebuchet MS, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.save();
+    ctx.scale(facing, 1);
+    ctx.fillText('Billy', 0, -47);
+    ctx.restore();
+
+    ctx.strokeStyle = '#3a2414';
+    ctx.lineWidth = 1.8;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.arc(6, -66, 3.4, 0.15, Math.PI - 0.15, true);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.ellipse(12, -60, 2.4, 1.8, 0, 0, Math.PI * 2);
+    paint(ctx, '#1a120c', '#1a120c', 1);
+
+    ctx.strokeStyle = '#5a3516';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(8, -58, 4.4, 0.12, Math.PI - 0.12);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.ellipse(9, -56, 2.2, 2.4, 0.2, 0, Math.PI);
+    paint(ctx, '#ff7a9a', '#c45a70', 1);
+  }
+
   function drawBilly(ctx, x, y, opt) {
     opt = opt || {};
     var t = opt.t || 0;
@@ -69,6 +199,12 @@ var Billy = Billy || {};
     ctx.scale(facing, 1);
     if (bulge) ctx.scale(1 - bulge * 0.22, 1 + bulge * 0.2);
     if (fat) ctx.scale(1 + fat * 0.7, 1 - fat * 0.12);
+
+    if (opt.dance) {
+      drawBillyDancePose(ctx, t, facing);
+      ctx.restore();
+      return;
+    }
 
     var bob = air ? -3 : Math.sin(t * (run ? 16 : 5)) * (run ? 1.6 : 0.8);
     ctx.translate(0, bob);
@@ -2218,6 +2354,37 @@ var Billy = Billy || {};
     ctx.restore();
   }
 
+  function drawAuraBanner(ctx, aura, w) {
+    aura = aura || {};
+    var t = aura.t || 0;
+    var age = aura.age || 0;
+    var fade = Math.max(0, Math.min(1, t * 3, (aura.t + 0.15) * 4));
+    var pulse = 1 + Math.sin(age * 10) * 0.05;
+    var bob = Math.sin(age * 16) * 7;
+    ctx.save();
+    ctx.globalAlpha = fade;
+    ctx.fillStyle = 'rgba(48, 12, 72, 0.58)';
+    ctx.fillRect(0, 160, w, 128);
+    ctx.translate(w / 2, 214);
+    ctx.scale(pulse, pulse);
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.lineJoin = 'round';
+    ctx.strokeStyle = '#7a2cff';
+    ctx.fillStyle = '#ffe14a';
+    ctx.lineWidth = 8;
+    ctx.font = 'bold 42px Trebuchet MS, sans-serif';
+    ctx.strokeText('Farmou Aura', 0, 0);
+    ctx.fillText('Farmou Aura', 0, 0);
+    ctx.strokeStyle = '#1a3a6b';
+    ctx.fillStyle = '#fff';
+    ctx.lineWidth = 5;
+    ctx.font = 'bold 30px Trebuchet MS, sans-serif';
+    ctx.strokeText('6     7', 0, 44 + bob);
+    ctx.fillText('6     7', 0, 44 + bob);
+    ctx.restore();
+  }
+
   Billy.Draw = {
     roundRect: roundRect,
     paint: paint,
@@ -2278,5 +2445,6 @@ var Billy = Billy || {};
     foodTruck: drawFoodTruck,
     leash: drawLeash,
     dad: drawDad,
+    auraBanner: drawAuraBanner,
   };
 })();

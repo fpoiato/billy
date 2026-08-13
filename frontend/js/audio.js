@@ -162,6 +162,12 @@ var Billy = Billy || {};
       setTimeout(function () { beep(659, 0.12, 'square', 0.08); }, 90);
       setTimeout(function () { beep(784, 0.18, 'square', 0.08); }, 180);
     },
+    aura: function () {
+      beep(659, 0.1, 'square', 0.07);
+      setTimeout(function () { beep(784, 0.1, 'square', 0.07); }, 80);
+      setTimeout(function () { beep(988, 0.12, 'triangle', 0.08); }, 160);
+      setTimeout(function () { beep(1175, 0.22, 'triangle', 0.09); }, 260);
+    },
     win: function () {
       beep(523, 0.15, 'triangle', 0.09);
       setTimeout(function () { beep(659, 0.15, 'triangle', 0.09); }, 120);
