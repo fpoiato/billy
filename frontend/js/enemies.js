@@ -56,6 +56,36 @@ var Billy = Billy || {};
     }
   }
 
+  function updateYardDogs(list, player, dt) {
+    if (!list) return;
+    var range = C.BARK_RANGE || 200;
+    for (var i = 0; i < list.length; i++) {
+      var d = list[i];
+      d.t = (d.t || 0) + dt;
+      if (d.x1 != null) patrolX(d, dt);
+      if (d.barkT > 0) d.barkT -= dt;
+      if (d.barkCd > 0) d.barkCd -= dt;
+      var near = false;
+      if (player) {
+        var px = player.x + player.w / 2;
+        var py = player.y + player.h / 2;
+        var cx = d.x + d.w / 2;
+        var cy = d.y + d.h / 2;
+        var dx = px - cx;
+        var dy = py - cy;
+        near = dx * dx + dy * dy <= range * range;
+      }
+      if (near && d.barkCd <= 0) {
+        d.barking = true;
+        d.barkT = 0.16;
+        d.barkCd = 0.36;
+        if (Billy.Audio && Billy.Audio.bark) Billy.Audio.bark();
+      } else {
+        d.barking = d.barkT > 0;
+      }
+    }
+  }
+
   function updateSeagulls(list, dt) {
     if (!list) return;
     for (var i = 0; i < list.length; i++) {
@@ -67,7 +97,7 @@ var Billy = Billy || {};
   }
 
   function bodyOf(kind, e) {
-    if (kind === 'critter' || kind === 'skater' || kind === 'cat' || kind === 'crab' || kind === 'gull' || kind === 'yarn' || kind === 'vase') {
+    if (kind === 'critter' || kind === 'skater' || kind === 'cat' || kind === 'crab' || kind === 'gull' || kind === 'yarn' || kind === 'vase' || kind === 'yardDog') {
       return { x: e.x, y: e.y, w: e.w, h: e.h };
     }
     if (kind === 'vacuum') return { x: e.x - C.VACUUM_W / 2, y: e.y - C.VACUUM_H / 2, w: C.VACUUM_W, h: C.VACUUM_H };
@@ -85,6 +115,7 @@ var Billy = Billy || {};
     updateBroom: updateBroom,
     updateList: updateList,
     updateWaves: updateWaves,
+    updateYardDogs: updateYardDogs,
     updateSeagulls: updateSeagulls,
     bodyOf: bodyOf,
   };

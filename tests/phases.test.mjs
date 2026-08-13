@@ -40,7 +40,10 @@ test('street has cars, manholes, a checkpoint and a dog boss arena', () => {
   assert.equal(level.bossKind, 'dogs');
   assert.ok(level.bossArena.gateX > level.bossArena.left);
   assert.ok(level.steaks.length >= 40);
-  assert.ok(level.decos.some((d) => d.kind === 'door' && d.pee));
+  assert.ok(level.decos.some((d) => d.kind === 'yard'));
+  assert.ok(level.decos.some((d) => d.kind === 'hydrant' && d.pee));
+  assert.ok(level.yardDogs.length >= 3);
+  assert.ok(!level.decos.some((d) => d.kind === 'door'));
   assert.ok(level.decos.some((d) => d.kind === 'toy' && d.kiss && d.clearKiss));
 });
 
@@ -56,6 +59,9 @@ test('beach has crabs, waves, seagulls and a reunion goal', () => {
   assert.ok(level.checkpoint);
   assert.ok(level.goal.x > level.checkpoint.x);
   assert.ok(level.decos.some((d) => d.kind === 'toy' && d.kiss));
+  assert.ok(level.decos.some((d) => d.kind === 'yard' && d.beach));
+  assert.ok(level.decos.some((d) => d.kind === 'shower' && d.pee));
+  assert.ok(!level.decos.some((d) => d.kind === 'door'));
   assert.equal(level.bossArena, null);
 });
 

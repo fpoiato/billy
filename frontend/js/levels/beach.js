@@ -49,7 +49,7 @@
   function boardwalk(level, x0) {
     B.plat(level, x0, C.GROUND, 1600, 90);
     B.deco(level, 'palm', x0 + 80, C.GROUND);
-    B.deco(level, 'door', x0 + 220, C.GROUND);
+    B.neighbor(level, x0 + 200, { beach: true, tone: 0 });
     B.steaksLine(level, x0 + 320, C.GROUND - 28, 5, 48);
     B.deco(level, 'castle', x0 + 700, C.GROUND);
     B.critter(level, 'dog', x0 + 900, C.GROUND - 40, x0 + 780, x0 + 1100);
@@ -117,7 +117,7 @@
     B.plat(level, x0, C.GROUND, w, 90);
     B.steaksLine(level, x0 + 80, C.GROUND - 28, 6, 48);
     B.deco(level, 'palm', x0 + 500, C.GROUND);
-    B.deco(level, 'door', x0 + 700, C.GROUND);
+    B.shower(level, x0 + 700);
     B.deco(level, 'toy', x0 + 1100, C.GROUND, { kiss: true });
     level.goal = { x: x0 + 1080, banner: 'O Patinho Amarelo!' };
     return w;

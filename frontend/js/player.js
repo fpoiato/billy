@@ -40,6 +40,8 @@ var Billy = Billy || {};
     sofa: { ox: 0, w: 110 },
     bed: { ox: -90, w: 180 },
     door: { ox: 0, w: 54 },
+    hydrant: { ox: 0, w: 22 },
+    shower: { ox: -4, w: 24 },
   };
 
   function peeZone(d) {
@@ -168,6 +170,7 @@ var Billy = Billy || {};
     ['needles', 'needle'],
     ['yarns', 'yarn'],
     ['vases', 'vase'],
+    ['yardDogs', 'yardDog'],
   ];
 
   function entityBody(kind, e) {

@@ -27,6 +27,7 @@ var Billy = Billy || {};
       needles: [],
       yarns: [],
       vases: [],
+      yardDogs: [],
       decos: [],
       puddles: [],
       spawn: { x: 80, y: C.GROUND - C.PLAYER_H - 2 },
@@ -76,8 +77,39 @@ var Billy = Billy || {};
     });
   }
 
+  function neighbor(level, x, opt) {
+    opt = opt || {};
+    deco(level, 'yard', x, C.GROUND, { beach: !!opt.beach, tone: opt.tone || 0 });
+    if (!level.yardDogs) level.yardDogs = [];
+    var x1 = x + 10;
+    var x2 = x + 108;
+    level.yardDogs.push({
+      x: (x1 + x2) / 2,
+      y: C.GROUND - C.PUP_H,
+      w: C.PUP_W,
+      h: C.PUP_H,
+      x1: x1,
+      x2: x2,
+      postX: x + 22,
+      dir: 1,
+      speed: 72 + (opt.tone || 0) * 10,
+      t: 0,
+      barking: false,
+      barkT: 0,
+      barkCd: 0,
+    });
+  }
+
+  function hydrant(level, x) {
+    deco(level, 'hydrant', x, C.GROUND);
+  }
+
+  function shower(level, x) {
+    deco(level, 'shower', x, C.GROUND);
+  }
+
   function deco(level, kind, x, y, extra) {
-    var pee = kind === 'sofa' || kind === 'bed' || kind === 'door';
+    var pee = kind === 'sofa' || kind === 'bed' || kind === 'door' || kind === 'hydrant' || kind === 'shower';
     var d = { kind: kind, x: x, y: y, pee: pee, peed: false };
     if (extra) {
       for (var k in extra) d[k] = extra[k];
@@ -97,6 +129,9 @@ var Billy = Billy || {};
     steak: steak,
     steaksLine: steaksLine,
     critter: critter,
+    neighbor: neighbor,
+    hydrant: hydrant,
+    shower: shower,
     deco: deco,
     finish: finish,
   };
