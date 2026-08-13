@@ -288,6 +288,13 @@ var Billy = Billy || {};
       p.x = P.clamp(p.x, arena.left + 10, arena.right - p.w - 10);
     }
 
+    var barkExtras = [];
+    if (state.boss && state.boss.monster) barkExtras.push(state.boss.monster);
+    if (state.intro > 0 && (level.theme || 'house') === 'house') {
+      barkExtras.push({ x: state.duckX - 16, y: C.GROUND - 28, w: 32, h: 24 });
+    }
+    Billy.Player.updateBark(p, level, barkExtras, dt);
+
     if (p.y > C.HEIGHT + 80) {
       hurtPlayer(p);
       if (state.screen === 'playing') respawn();
@@ -479,6 +486,7 @@ var Billy = Billy || {};
       scared: (night && !(state.boss && state.boss.done)) || pl.grabbed,
       pee: pl.peeing && !pl.grabbed,
       bulge: pl.bulge || 0,
+      bark: pl.barking && !kiss,
     });
     if (kiss) {
       D.duck(ctx, worldX(midX + 16 * pl.facing), C.GROUND - 16, state.t, 1, -pl.facing);

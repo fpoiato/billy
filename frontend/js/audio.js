@@ -171,6 +171,10 @@ var Billy = Billy || {};
       setTimeout(function () { beep(1175, 0.22, 'triangle', 0.1); }, 180);
     },
     bark: function () { noise(0.18, 0.16); beep(140, 0.2, 'sawtooth', 0.06, 90); },
+    yip: function () {
+      noise(0.08, 0.11);
+      beep(640, 0.09, 'square', 0.075, 340);
+    },
     squeak: function () {
       beep(520, 0.12, 'square', 0.07, 880);
       setTimeout(function () { beep(700, 0.18, 'square', 0.06, 1100); }, 80);
