@@ -21,4 +21,5 @@ test('house level has day, checkpoint, night and boss arena', () => {
   assert.ok(level.decos.some((d) => d.kind === 'sofa' && d.pee));
   assert.ok(level.decos.some((d) => d.kind === 'bed' && d.pee));
   assert.ok(level.decos.some((d) => d.kind === 'door' && d.pee));
+  assert.ok(level.decos.some((d) => d.kind === 'toy' && d.kiss && d.clearKiss));
 });

@@ -21,6 +21,7 @@ var Billy = Billy || {};
   function create(opt) {
     opt = opt || {};
     var steaks = Math.max(0, opt.steaks | 0);
+    if (Billy.Audio && Billy.Audio.kiss) Billy.Audio.kiss();
     return {
       phaseId: opt.phaseId || 'house',
       steaks: steaks,
@@ -36,6 +37,9 @@ var Billy = Billy || {};
       dingWait: 0,
       bits: [],
       sparkles: [],
+      kissHearts: [],
+      kissSpawn: 0,
+      kissMid: 200,
     };
   }
 
@@ -107,6 +111,29 @@ var Billy = Billy || {};
       if (sp.life <= 0) r.sparkles.splice(s, 1);
     }
 
+    if (!r.kissHearts) r.kissHearts = [];
+    for (var kh = r.kissHearts.length - 1; kh >= 0; kh--) {
+      var h = r.kissHearts[kh];
+      h.x += h.vx * dt;
+      h.y += h.vy * dt;
+      h.life -= dt * 0.7;
+      if (h.life <= 0) r.kissHearts.splice(kh, 1);
+    }
+    r.kissSpawn = (r.kissSpawn || 0) - dt;
+    if (r.kissSpawn <= 0 && r.step !== 'wipe') {
+      var mid = r.kissMid || 200;
+      r.kissHearts.push({
+        x: mid + (Math.random() - 0.5) * 28,
+        y: C.GROUND - 10 - Math.random() * 8,
+        vx: (Math.random() - 0.5) * 18,
+        vy: -40 - Math.random() * 50,
+        life: 1,
+        s: 0.6 + Math.random() * 0.5,
+      });
+      if (r.kissHearts.length > 18) r.kissHearts.shift();
+      r.kissSpawn = 0.11;
+    }
+
     if (r.step === 'wipe') {
       r.wipe += dt * 1.15;
       if (r.wipe >= 1) r.finished = true;
@@ -176,12 +203,8 @@ var Billy = Billy || {};
 
     D.scene(ctx, { x: r.t * 18 }, phase.id, false, 1, C.WIDTH, C.HEIGHT, C.GROUND);
 
-    D.shadow(ctx, C.WIDTH / 2 - 210, C.GROUND + 4, false);
-    D.billy(ctx, C.WIDTH / 2 - 210, C.GROUND, {
-      t: r.t,
-      facing: 1,
-      run: true,
-    });
+    D.shadow(ctx, r.kissMid || 200, C.GROUND + 4, false);
+    D.coupleKiss(ctx, r.kissMid || 200, C.GROUND, r.t, 1, r.kissHearts || []);
 
     var titlePx = C.WIDTH < 700 ? 28 : 40;
     ctx.textAlign = 'center';

@@ -297,6 +297,23 @@ var Billy = Billy || {};
     ctx.restore();
   }
 
+  function drawCoupleKiss(ctx, midX, feetY, t, facing, hearts) {
+    facing = facing == null ? 1 : facing;
+    hearts = hearts || [];
+    var i;
+    for (i = 0; i < hearts.length; i++) {
+      drawLoveHeart(ctx, hearts[i].x, hearts[i].y, hearts[i].s, hearts[i].life);
+    }
+    drawBilly(ctx, midX - 16 * facing, feetY, {
+      t: t,
+      facing: facing,
+      run: false,
+      bark: false,
+    });
+    drawDuck(ctx, midX + 16 * facing, feetY - 16, t, 1, -facing);
+    drawCensored(ctx, midX, feetY - 38, 128);
+  }
+
   function drawSteak(ctx, x, y, t) {
     ctx.save();
     ctx.translate(x, y + Math.sin(t * 6 + x) * 3);
@@ -1082,6 +1099,7 @@ var Billy = Billy || {};
     duck: drawDuck,
     loveHeart: drawLoveHeart,
     censored: drawCensored,
+    coupleKiss: drawCoupleKiss,
     steak: drawSteak,
     pup: drawPup,
     bird: drawBird,

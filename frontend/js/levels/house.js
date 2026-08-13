@@ -46,9 +46,13 @@
     level.rugs.push({ x: x, y: C.GROUND - 6, w: w, h: 8 });
   }
 
-  function deco(level, kind, x, y) {
+  function deco(level, kind, x, y, extra) {
     var pee = kind === 'sofa' || kind === 'bed' || kind === 'door';
-    level.decos.push({ kind: kind, x: x, y: y, pee: pee, peed: false });
+    var d = { kind: kind, x: x, y: y, pee: pee, peed: false };
+    if (extra) {
+      for (var k in extra) d[k] = extra[k];
+    }
+    level.decos.push(d);
   }
 
   function roomLiving(level, x0) {
@@ -191,6 +195,7 @@
       bed: { x: x0 + w / 2, y: C.GROUND },
     };
     deco(level, 'bed', x0 + w / 2, C.GROUND);
+    deco(level, 'toy', x0 + w - 120, C.GROUND, { kiss: true, clearKiss: true });
     return w;
   }
 

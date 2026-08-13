@@ -55,3 +55,9 @@ test('formatTime pads minutes and seconds', () => {
   assert.equal(Billy.Results.formatTime(0), '00:00');
   assert.equal(Billy.Results.formatTime(75), '01:15');
 });
+
+test('results transition keeps the namoro going', () => {
+  const r = Billy.Results.create({ phaseId: 'street', steaks: 4, elapsed: 40, lives: 3 });
+  Billy.Results.update(r, 0.2);
+  assert.ok(r.kissHearts.length >= 1);
+});
