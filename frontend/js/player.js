@@ -30,6 +30,9 @@ var Billy = Billy || {};
       kissDuck: null,
       kissHearts: [],
       kissSpawn: 0,
+      barking: false,
+      barkT: 0,
+      barkCd: 0,
     };
   }
 
@@ -150,6 +153,87 @@ var Billy = Billy || {};
     }
   }
 
+  var BARK_LISTS = [
+    ['hearts', 'heart'],
+    ['vacuums', 'vacuum'],
+    ['brooms', 'broom'],
+    ['cars', 'car'],
+    ['skaters', 'skater'],
+    ['cats', 'cat'],
+    ['manholes', 'manhole'],
+    ['crabs', 'crab'],
+    ['waves', 'wave'],
+    ['seagulls', 'gull'],
+    ['needles', 'needle'],
+    ['yarns', 'yarn'],
+    ['vases', 'vase'],
+  ];
+
+  function entityBody(kind, e) {
+    if (Billy.Enemies && Billy.Enemies.bodyOf) return Billy.Enemies.bodyOf(kind, e);
+    return { x: e.x, y: e.y, w: e.w || 20, h: e.h || 20 };
+  }
+
+  function nearBody(p, body, range) {
+    if (!body || body.dead) return false;
+    var w = body.w || 20;
+    var h = body.h || 20;
+    var px = p.x + p.w / 2;
+    var py = p.y + p.h / 2;
+    var nx = Math.max(body.x, Math.min(px, body.x + w));
+    var ny = Math.max(body.y, Math.min(py, body.y + h));
+    var dx = px - nx;
+    var dy = py - ny;
+    return dx * dx + dy * dy <= range * range;
+  }
+
+  function nearBarkThing(p, level, extras) {
+    var range = C.BARK_RANGE;
+    var i;
+    for (i = 0; i < BARK_LISTS.length; i++) {
+      var list = (level && level[BARK_LISTS[i][0]]) || [];
+      var kind = BARK_LISTS[i][1];
+      for (var j = 0; j < list.length; j++) {
+        if (list[j].dead) continue;
+        if (nearBody(p, entityBody(kind, list[j]), range)) return true;
+      }
+    }
+    var decos = (level && level.decos) || [];
+    for (i = 0; i < decos.length; i++) {
+      var d = decos[i];
+      if (d.kind !== 'toy') continue;
+      if (p.kissing && p.kissDuck === d) continue;
+      if (nearBody(p, { x: d.x - 16, y: d.y - 30, w: 32, h: 24 }, range)) return true;
+    }
+    extras = extras || [];
+    for (i = 0; i < extras.length; i++) {
+      if (nearBody(p, extras[i], range)) return true;
+    }
+    return false;
+  }
+
+  function updateBark(p, level, extras, dt) {
+    if (p.barkT > 0) p.barkT -= dt;
+    if (p.barkCd > 0) p.barkCd -= dt;
+
+    if (p.kissing) {
+      p.barking = false;
+      p.barkT = 0;
+      return false;
+    }
+
+    var near = nearBarkThing(p, level, extras);
+    if (near && p.barkCd <= 0) {
+      p.barking = true;
+      p.barkT = C.BARK_TIME;
+      p.barkCd = C.BARK_GAP;
+      if (Billy.Audio && Billy.Audio.yip) Billy.Audio.yip();
+    } else {
+      p.barking = p.barkT > 0;
+    }
+    return near;
+  }
+
   function update(p, input, level, dt) {
     p.animT += dt;
     if (p.invuln > 0) p.invuln -= dt;
@@ -259,6 +343,8 @@ var Billy = Billy || {};
     updateKiss: updateKiss,
     nearPeeSpot: nearPeeSpot,
     nearKissDuck: nearKissDuck,
+    nearBarkThing: nearBarkThing,
+    updateBark: updateBark,
     peeZone: peeZone,
     hit: hit,
     addSteaks: addSteaks,

@@ -176,11 +176,23 @@ var Billy = Billy || {};
     ctx.ellipse(31, -24, 2.6, 2, 0, 0, Math.PI * 2);
     paint(ctx, '#1a120c', '#1a120c', 1);
 
+    var bark = !!opt.bark;
     ctx.strokeStyle = '#5a3516';
     ctx.lineWidth = 1.8;
     ctx.lineCap = 'round';
     ctx.beginPath();
-    if (bulge) {
+    if (bark) {
+      ctx.ellipse(28, -20.5, 4.4, 3.6, 0.12, 0, Math.PI * 2);
+      paint(ctx, '#3a1810', '#1a0c08', 1.4);
+      ctx.strokeStyle = '#fff';
+      ctx.lineWidth = 1.6;
+      ctx.beginPath();
+      ctx.arc(36, -26, 7 + Math.sin(t * 28) * 1.6, -0.45, 0.45);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(40, -26, 11 + Math.sin(t * 28) * 1.6, -0.35, 0.35);
+      ctx.stroke();
+    } else if (bulge) {
       ctx.ellipse(26, -20, 3.2 + bulge * 2, 3.4 + bulge * 2.2, 0, 0, Math.PI * 2);
       ctx.stroke();
     } else if (scared) {
@@ -190,7 +202,7 @@ var Billy = Billy || {};
       ctx.arc(26, -22, 3.4, 0.15, Math.PI - 0.15, true);
       ctx.stroke();
     }
-    if (!scared && !bulge) {
+    if (!scared && !bulge && !bark) {
       ctx.beginPath();
       ctx.ellipse(27, -20, 2.2, 2.6, 0.2, 0, Math.PI);
       paint(ctx, '#ff7a9a', '#c45a70', 1);
@@ -208,6 +220,25 @@ var Billy = Billy || {};
     }
 
     ctx.restore();
+
+    if (bark) {
+      roundRect(ctx, x - 18, y - 64, 36, 18, 8);
+      paint(ctx, '#fff', '#1a3a6b', 2);
+      ctx.beginPath();
+      ctx.moveTo(x - 3, y - 46);
+      ctx.lineTo(x + 1, y - 39);
+      ctx.lineTo(x + 7, y - 46);
+      ctx.fillStyle = '#fff';
+      ctx.fill();
+      ctx.strokeStyle = '#1a3a6b';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      ctx.fillStyle = '#1a3a6b';
+      ctx.font = 'bold 11px Trebuchet MS, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('Au!', x, y - 55);
+    }
   }
 
   function drawDuck(ctx, x, y, t, scale, facing) {
