@@ -29,15 +29,15 @@ var Billy = Billy || {};
 
     ctx.font = 'bold 16px Trebuchet MS, sans-serif';
     ctx.textAlign = 'right';
-    ctx.strokeText(state.level.name, C.WIDTH - 18, top + 16);
-    ctx.fillText(state.level.name, C.WIDTH - 18, top + 16);
+    ctx.strokeText(state.level.name, C.WIDTH - 110, top + 16);
+    ctx.fillText(state.level.name, C.WIDTH - 110, top + 16);
 
     if (state.showTimer) {
       var sec = Math.max(0, state.elapsed | 0);
       var mm = String(Math.floor(sec / 60)).padStart(2, '0');
       var ss = String(sec % 60).padStart(2, '0');
-      ctx.strokeText(mm + ':' + ss, C.WIDTH - 18, top + 38);
-      ctx.fillText(mm + ':' + ss, C.WIDTH - 18, top + 38);
+      ctx.strokeText(mm + ':' + ss, C.WIDTH - 110, top + 38);
+      ctx.fillText(mm + ':' + ss, C.WIDTH - 110, top + 38);
     }
 
     ctx.font = '10px Trebuchet MS, sans-serif';

@@ -16,4 +16,14 @@ var Billy = Billy || {};
     window.visualViewport.addEventListener('resize', fit);
   }
   Billy.Game.start(canvas);
+
+  var musicBtn = document.getElementById('btn-music');
+  if (musicBtn) {
+    musicBtn.addEventListener('click', function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      Billy.Audio.toggleMusic();
+    });
+  }
+  Billy.Audio.syncButton();
 })();
