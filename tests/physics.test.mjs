@@ -32,6 +32,15 @@ test('50 steaks grant an extra life', () => {
   assert.equal(P.extraLivesFromSteaks(0, 49, C.STEAKS_PER_LIFE), 0);
 });
 
+test('walking on a wide floor does not eject sideways', () => {
+  const floor = { x: 0, y: 460, w: 1600, h: 90 };
+  const body = { x: 80, y: 422, w: 30, h: 38, vx: 200, vy: 40, onGround: false };
+  P.moveAndCollide(body, [floor], 0.016);
+  assert.ok(body.x > 80 && body.x < 90, 'x=' + body.x);
+  assert.equal(body.onGround, true);
+  assert.equal(body.y, 422);
+});
+
 test('version is semver', () => {
   assert.match(Billy.APP_VERSION, /^\d+\.\d+\.\d+$/);
 });

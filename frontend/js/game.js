@@ -248,7 +248,8 @@ var Billy = Billy || {};
     var level = state.level;
     var night = state.night;
     var bright = state.boss ? state.boss.brightness : night ? 0.28 : 1;
-    D.houseSky(ctx, state.cam, night, bright, C.WIDTH, C.HEIGHT);
+    D.houseSky(ctx, state.cam, night, bright, C.WIDTH, C.HEIGHT, C.GROUND);
+    D.floor(ctx, state.cam, night, C.GROUND, C.WIDTH, C.HEIGHT);
 
     for (var r = 0; r < level.rugs.length; r++) {
       var rug = { x: worldX(level.rugs[r].x), y: level.rugs[r].y, w: level.rugs[r].w, h: level.rugs[r].h };
@@ -259,15 +260,9 @@ var Billy = Billy || {};
       var p = level.platforms[i];
       var sx = worldX(p.x);
       if (sx + p.w < -20 || sx > C.WIDTH + 20) continue;
-      if (p.y >= C.GROUND - 1) {
-        ctx.fillStyle = night ? '#3a2a4a' : '#d9a066';
-        ctx.fillRect(sx, p.y, p.w, C.HEIGHT);
-        ctx.fillStyle = night ? '#5a4068' : '#b87a3a';
-        ctx.fillRect(sx, p.y, p.w, 12);
-      } else {
-        D.roundRect(ctx, sx, p.y, p.w, p.h, 6);
-        D.paint(ctx, night ? '#6b5a7a' : '#e8c48a', '#5a3516', 3);
-      }
+      if (p.ground || p.y >= C.GROUND - 1) continue;
+      D.roundRect(ctx, sx, p.y, p.w, p.h, 6);
+      D.paint(ctx, night ? '#6b5a7a' : '#e8c48a', '#5a3516', 3);
     }
 
     for (var d = 0; d < level.decos.length; d++) drawDeco(level.decos[d]);
@@ -303,7 +298,8 @@ var Billy = Billy || {};
     }
 
     var pl = state.player;
-    D.billy(ctx, worldX(pl.x + pl.w / 2), pl.y + pl.h - 8, {
+    D.shadow(ctx, worldX(pl.x + pl.w / 2), C.GROUND + 4, !pl.onGround);
+    D.billy(ctx, worldX(pl.x + pl.w / 2), pl.y + pl.h - 18, {
       t: state.t,
       facing: pl.facing,
       run: Math.abs(pl.vx) > 40 && pl.onGround,
@@ -323,7 +319,7 @@ var Billy = Billy || {};
 
     if (night && !(state.boss && state.boss.done)) {
       ctx.fillStyle = 'rgba(8, 10, 28,' + (state.boss ? 0.55 - state.boss.brightness * 0.4 : 0.38) + ')';
-      ctx.fillRect(0, 0, C.WIDTH, C.HEIGHT);
+      ctx.fillRect(0, 0, C.WIDTH, C.GROUND);
     }
   }
 
@@ -339,7 +335,8 @@ var Billy = Billy || {};
   }
 
   function drawMenu() {
-    D.houseSky(ctx, { x: state.t * 30 }, false, 1, C.WIDTH, C.HEIGHT);
+    D.houseSky(ctx, { x: state.t * 30 }, false, 1, C.WIDTH, C.HEIGHT, C.GROUND);
+    D.floor(ctx, { x: state.t * 30 }, false, C.GROUND, C.WIDTH, C.HEIGHT);
     ctx.fillStyle = 'rgba(12,24,48,0.25)';
     ctx.fillRect(0, 0, C.WIDTH, C.HEIGHT);
     D.billy(ctx, C.WIDTH / 2 - 50, 250, { t: state.t, facing: 1, run: true });
@@ -377,7 +374,8 @@ var Billy = Billy || {};
   }
 
   function drawEnd(kind) {
-    D.houseSky(ctx, { x: 0 }, kind === 'gameover', 1, C.WIDTH, C.HEIGHT);
+    D.houseSky(ctx, { x: 0 }, kind === 'gameover', 1, C.WIDTH, C.HEIGHT, C.GROUND);
+    D.floor(ctx, { x: 0 }, kind === 'gameover', C.GROUND, C.WIDTH, C.HEIGHT);
     D.billy(ctx, C.WIDTH / 2 - 20, 240, {
       t: state.t,
       facing: 1,

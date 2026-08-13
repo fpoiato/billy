@@ -346,7 +346,8 @@ var Billy = Billy || {};
     }
   }
 
-  function drawHouseSky(ctx, cam, night, brightness, w, h) {
+  function drawHouseSky(ctx, cam, night, brightness, w, h, groundY) {
+    groundY = groundY == null ? h - 80 : groundY;
     var g = ctx.createLinearGradient(0, 0, 0, h);
     if (night) {
       var b = brightness == null ? 0.22 : brightness;
@@ -372,17 +373,56 @@ var Billy = Billy || {};
 
     ctx.save();
     ctx.translate(-cam.x * 0.35, 0);
+    var wallH = Math.max(40, groundY - 120);
     ctx.fillStyle = night ? '#2a2450' : '#f3d2b3';
     for (var j = 0; j < 12; j++) {
-      roundRect(ctx, j * 280 - 40, 120, 240, 400, 12);
+      roundRect(ctx, j * 280 - 40, 120, 240, wallH, 12);
       ctx.fill();
       ctx.fillStyle = night ? '#ffd27a' : '#8ecfff';
       for (var wy = 0; wy < 3; wy++) {
-        ctx.fillRect(j * 280 + 20, 160 + wy * 70, 36, 36);
-        ctx.fillRect(j * 280 + 90, 160 + wy * 70, 36, 36);
+        var wyY = 160 + wy * 70;
+        if (wyY + 36 > groundY - 8) continue;
+        ctx.fillRect(j * 280 + 20, wyY, 36, 36);
+        ctx.fillRect(j * 280 + 90, wyY, 36, 36);
       }
       ctx.fillStyle = night ? '#2a2450' : '#f3d2b3';
     }
+    ctx.restore();
+  }
+
+  function drawFloor(ctx, cam, night, groundY, width, height) {
+    ctx.fillStyle = night ? '#3d2a4a' : '#c48a4a';
+    ctx.fillRect(0, groundY, width, height - groundY);
+
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(0, groundY, width, height - groundY);
+    ctx.clip();
+    var offset = -((cam.x % 56) + 56) % 56;
+    ctx.strokeStyle = night ? 'rgba(20,10,28,0.35)' : 'rgba(90,40,16,0.35)';
+    ctx.lineWidth = 3;
+    for (var x = offset; x < width + 56; x += 56) {
+      ctx.beginPath();
+      ctx.moveTo(x, groundY);
+      ctx.lineTo(x, height);
+      ctx.stroke();
+    }
+    ctx.restore();
+
+    ctx.fillStyle = night ? '#6b4e7a' : '#8b5a2b';
+    ctx.fillRect(0, groundY, width, 14);
+    ctx.fillStyle = night ? '#2a1a38' : '#5a3516';
+    ctx.fillRect(0, groundY, width, 4);
+    ctx.fillStyle = night ? '#8a6a9a' : '#e8c48a';
+    ctx.fillRect(0, groundY + 14, width, 3);
+  }
+
+  function drawShadow(ctx, x, y, air) {
+    ctx.save();
+    ctx.fillStyle = 'rgba(40, 22, 10, 0.32)';
+    ctx.beginPath();
+    ctx.ellipse(x, y, air ? 9 : 18, 6, 0, 0, Math.PI * 2);
+    ctx.fill();
     ctx.restore();
   }
 
@@ -406,5 +446,7 @@ var Billy = Billy || {};
     door: drawDoor,
     rug: drawRug,
     houseSky: drawHouseSky,
+    floor: drawFloor,
+    shadow: drawShadow,
   };
 })();
