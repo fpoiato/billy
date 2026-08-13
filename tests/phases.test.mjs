@@ -33,6 +33,9 @@ test('street has cars, manholes, a checkpoint and a dog boss arena', () => {
   assert.ok(level.manholes.length >= 2);
   assert.ok(level.skaters.length >= 1);
   assert.ok(level.cats.length >= 1);
+  assert.ok(level.critters.some((c) => c.species === 'dog'));
+  assert.ok(level.critters.some((c) => c.species === 'bird'));
+  assert.equal((level.hearts || []).length, 0);
   assert.ok(level.checkpoint);
   assert.equal(level.bossKind, 'dogs');
   assert.ok(level.bossArena.gateX > level.bossArena.left);
@@ -46,6 +49,9 @@ test('beach has crabs, waves, seagulls and a reunion goal', () => {
   assert.ok(level.crabs.length >= 2);
   assert.ok(level.waves.length >= 2);
   assert.ok(level.seagulls.length >= 1);
+  assert.ok(level.critters.some((c) => c.species === 'dog'));
+  assert.ok(level.critters.some((c) => c.species === 'bird'));
+  assert.equal((level.hearts || []).length, 0);
   assert.ok(level.checkpoint);
   assert.ok(level.goal.x > level.checkpoint.x);
   assert.ok(level.decos.some((d) => d.kind === 'toy' && d.kiss));
@@ -59,6 +65,9 @@ test('grandma has yarn, needles, vases, cat and Camila as boss', () => {
   assert.ok(level.needles.length >= 1);
   assert.ok(level.vases.length >= 2);
   assert.ok(level.cats.length >= 1);
+  assert.ok(level.critters.some((c) => c.species === 'dog'));
+  assert.ok(level.critters.some((c) => c.species === 'bird'));
+  assert.equal((level.hearts || []).length, 0);
   assert.equal(level.goal, null);
   assert.equal(level.bossKind, 'camila');
   assert.ok(level.bossArena);

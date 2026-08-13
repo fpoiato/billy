@@ -26,9 +26,10 @@ Billy.CONFIG = {
   STEAKS_PER_LIFE: 50,
   STEAKS_ON_HIT: 10,
 
-  HEART_W: 28,
-  HEART_H: 26,
-  HEART_SPEED: 70,
+  PUP_W: 32,
+  PUP_H: 26,
+  BIRD_W: 18,
+  BIRD_H: 16,
 
   VACUUM_W: 54,
   VACUUM_H: 28,

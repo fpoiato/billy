@@ -14,7 +14,7 @@ var Billy = Billy || {};
       platforms: [],
       rugs: [],
       steaks: [],
-      hearts: [],
+      critters: [],
       vacuums: [],
       brooms: [],
       cars: [],
@@ -52,18 +52,27 @@ var Billy = Billy || {};
     for (var i = 0; i < n; i++) steak(level, x + i * (gap || 44), y);
   }
 
-  function heart(level, x, y, x1, x2) {
-    level.hearts.push({
+  function critterSize(species) {
+    if (species === 'dog') return { w: C.PUP_W, h: C.PUP_H };
+    if (species === 'bird') return { w: C.BIRD_W, h: C.BIRD_H };
+    return { w: C.CAT_W, h: C.CAT_H };
+  }
+
+  function critter(level, species, x, y, x1, x2) {
+    var sz = critterSize(species);
+    level.critters.push({
+      species: species,
       x: x,
       y: y,
-      w: C.HEART_W,
-      h: C.HEART_H,
+      w: sz.w,
+      h: sz.h,
       x1: x1,
       x2: x2,
       dir: 1,
       vy: 0,
       dead: false,
       t: 0,
+      speed: species === 'bird' ? 100 : species === 'cat' ? 85 : 70,
     });
   }
 
@@ -87,7 +96,7 @@ var Billy = Billy || {};
     plat: plat,
     steak: steak,
     steaksLine: steaksLine,
-    heart: heart,
+    critter: critter,
     deco: deco,
     finish: finish,
   };

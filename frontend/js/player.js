@@ -154,7 +154,7 @@ var Billy = Billy || {};
   }
 
   var BARK_LISTS = [
-    ['hearts', 'heart'],
+    ['critters', 'critter'],
     ['vacuums', 'vacuum'],
     ['brooms', 'broom'],
     ['cars', 'car'],

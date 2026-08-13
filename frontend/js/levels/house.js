@@ -20,18 +20,25 @@
     for (var i = 0; i < n; i++) steak(level, x + i * (gap || 44), y);
   }
 
-  function heart(level, x, y, x1, x2) {
-    level.hearts.push({
+  function critter(level, species, x, y, x1, x2) {
+    var sz = species === 'dog'
+      ? { w: C.PUP_W, h: C.PUP_H }
+      : species === 'bird'
+        ? { w: C.BIRD_W, h: C.BIRD_H }
+        : { w: C.CAT_W, h: C.CAT_H };
+    level.critters.push({
+      species: species,
       x: x,
       y: y,
-      w: C.HEART_W,
-      h: C.HEART_H,
+      w: sz.w,
+      h: sz.h,
       x1: x1,
       x2: x2,
       dir: 1,
       vy: 0,
       dead: false,
       t: 0,
+      speed: species === 'bird' ? 100 : species === 'cat' ? 85 : 70,
     });
   }
 
@@ -65,7 +72,7 @@
     rug(level, x0 + 1000, 300);
     steaksLine(level, x0 + 120, C.GROUND - 90, 5, 50);
     steaksLine(level, x0 + 560, C.GROUND - 110, 5, 50);
-    heart(level, x0 + 700, C.GROUND - 40, x0 + 540, x0 + 820);
+    critter(level, 'cat', x0 + 700, C.GROUND - 40, x0 + 540, x0 + 820);
     steaksLine(level, x0 + 1040, C.GROUND - 90, 4, 50);
     return 1500;
   }
@@ -87,7 +94,7 @@
       dir: 1,
       speed: 110,
     });
-    heart(level, x0 + 500, C.GROUND - 160, x0 + 420, x0 + 560);
+    critter(level, 'bird', x0 + 500, C.GROUND - 160, x0 + 420, x0 + 560);
     steaksLine(level, x0 + 1100, C.GROUND - 28, 6, 48);
     return 1700;
   }
@@ -108,7 +115,7 @@
       speed: 1.6,
       phase: 0,
     });
-    heart(level, x0 + 1100, C.GROUND - 40, x0 + 900, x0 + 1300);
+    critter(level, 'dog', x0 + 1100, C.GROUND - 40, x0 + 900, x0 + 1300);
     steaksLine(level, x0 + 880, C.GROUND - 80, 5, 50);
     return 1500;
   }
@@ -121,7 +128,7 @@
     steaksLine(level, x0 + 130, C.GROUND - 114, 2, 30);
     steaksLine(level, x0 + 290, C.GROUND - 164, 2, 30);
     steaksLine(level, x0 + 450, C.GROUND - 114, 2, 30);
-    heart(level, x0 + 800, C.GROUND - 40, x0 + 700, x0 + 980);
+    critter(level, 'dog', x0 + 800, C.GROUND - 40, x0 + 700, x0 + 980);
     plat(level, x0 + 1100, C.GROUND - 110, 220, 16);
     steaksLine(level, x0 + 1130, C.GROUND - 144, 4, 44);
     deco(level, 'toy', x0 + 1400, C.GROUND);
@@ -140,7 +147,7 @@
     steaksLine(level, x0 + 510, C.GROUND - 124, 1, 40);
     steaksLine(level, x0 + 690, C.GROUND - 184, 1, 40);
     steaksLine(level, x0 + 870, C.GROUND - 124, 1, 40);
-    heart(level, x0 + 1200, C.GROUND - 40, x0 + 1050, x0 + 1400);
+    critter(level, 'bird', x0 + 1200, C.GROUND - 40, x0 + 1050, x0 + 1400);
     steaksLine(level, x0 + 1100, C.GROUND - 28, 8, 44);
     return 1600;
   }
@@ -152,8 +159,8 @@
     plat(level, x0 + 800, C.GROUND - 100, 100, 16);
     steaksLine(level, x0 + 220, C.GROUND - 134, 2, 36);
     steaksLine(level, x0 + 520, C.GROUND - 184, 2, 36);
-    heart(level, x0 + 400, C.GROUND - 40, x0 + 250, x0 + 620);
-    heart(level, x0 + 1100, C.GROUND - 40, x0 + 950, x0 + 1400);
+    critter(level, 'cat', x0 + 400, C.GROUND - 40, x0 + 250, x0 + 620);
+    critter(level, 'dog', x0 + 1100, C.GROUND - 40, x0 + 950, x0 + 1400);
     level.vacuums.push({
       x: x0 + 900,
       y: C.GROUND - 14,
@@ -170,7 +177,7 @@
     steaksLine(level, x0 + 80, C.GROUND - 28, 6, 48);
     plat(level, x0 + 500, C.GROUND - 90, 160, 16);
     steaksLine(level, x0 + 530, C.GROUND - 124, 3, 40);
-    heart(level, x0 + 900, C.GROUND - 40, x0 + 780, x0 + 1100);
+    critter(level, 'bird', x0 + 900, C.GROUND - 40, x0 + 780, x0 + 1100);
     deco(level, 'door', x0 + 1280, C.GROUND);
     return 1400;
   }
@@ -198,7 +205,7 @@
       platforms: [],
       rugs: [],
       steaks: [],
-      hearts: [],
+      critters: [],
       vacuums: [],
       brooms: [],
       decos: [],

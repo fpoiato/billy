@@ -50,7 +50,7 @@
     B.deco(level, 'plant', x0 + 500, C.GROUND);
     B.steaksLine(level, x0 + 700, C.GROUND - 28, 5, 48);
     B.deco(level, 'door', x0 + 1100, C.GROUND);
-    B.heart(level, x0 + 1300, C.GROUND - 40, x0 + 1180, x0 + 1500);
+    B.critter(level, 'bird', x0 + 1300, C.GROUND - 40, x0 + 1180, x0 + 1500);
     return 1600;
   }
 
@@ -110,7 +110,7 @@
     B.steaksLine(level, x0 + 80, C.GROUND - 28, 6, 48);
     B.plat(level, x0 + 700, C.GROUND - 90, 160, 16);
     B.steaksLine(level, x0 + 730, C.GROUND - 124, 3, 40);
-    B.heart(level, x0 + 1300, C.GROUND - 40, x0 + 1150, x0 + 1550);
+    B.critter(level, 'dog', x0 + 1300, C.GROUND - 40, x0 + 1150, x0 + 1550);
     return 1700;
   }
 

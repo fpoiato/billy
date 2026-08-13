@@ -60,7 +60,7 @@
     B.deco(level, 'plant', x0 + 220, C.GROUND);
     B.steaksLine(level, x0 + 280, C.GROUND - 28, 5, 48);
     B.deco(level, 'door', x0 + 620, C.GROUND);
-    B.heart(level, x0 + 800, C.GROUND - 40, x0 + 700, x0 + 980);
+    B.critter(level, 'dog', x0 + 800, C.GROUND - 40, x0 + 700, x0 + 980);
     B.steaksLine(level, x0 + 1000, C.GROUND - 28, 4, 44);
     B.deco(level, 'door', x0 + 1400, C.GROUND);
     return 1700;
@@ -75,7 +75,7 @@
     B.steaksLine(level, x0 + 440, C.GROUND - 154, 3, 40);
     B.steaksLine(level, x0 + 700, C.GROUND - 104, 3, 40);
     skater(level, x0 + 900, x0 + 820, x0 + 1400);
-    B.heart(level, x0 + 1100, C.GROUND - 40, x0 + 980, x0 + 1300);
+    B.critter(level, 'bird', x0 + 1100, C.GROUND - 40, x0 + 980, x0 + 1300);
     return 1600;
   }
 
@@ -100,7 +100,7 @@
     B.steaksLine(level, x0 + 240, C.GROUND - 28, 6, 46);
     B.plat(level, x0 + 1100, C.GROUND - 90, 180, 16);
     B.steaksLine(level, x0 + 1130, C.GROUND - 124, 3, 40);
-    B.heart(level, x0 + 1400, C.GROUND - 40, x0 + 1280, x0 + 1540);
+    B.critter(level, 'dog', x0 + 1400, C.GROUND - 40, x0 + 1280, x0 + 1540);
     return 1600;
   }
 

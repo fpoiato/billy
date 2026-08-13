@@ -194,7 +194,7 @@ var Billy = Billy || {};
       }
     }
 
-    hitList(level.hearts, 'heart', { kill: true });
+    hitList(level.critters, 'critter', { kill: true });
     hitList(level.vacuums, 'vacuum');
     hitList(level.brooms, 'broom');
     hitList(level.cars, 'car');
@@ -213,7 +213,7 @@ var Billy = Billy || {};
     var level = state.level;
     var p = state.player;
     Billy.Player.update(p, input, level, dt);
-    Billy.Enemies.updateHearts(level.hearts || [], dt, level.platforms);
+    Billy.Enemies.updateCritters(level.critters || [], dt, level.platforms);
     var vs = level.vacuums || [];
     for (var i = 0; i < vs.length; i++) Billy.Enemies.updateVacuum(vs[i], dt);
     var bs = level.brooms || [];
@@ -391,10 +391,14 @@ var Billy = Billy || {};
     for (var b = 0; b < state.fx.bits.length; b++) {
       D.steak(ctx, worldX(state.fx.bits[b].x), state.fx.bits[b].y, state.t);
     }
-    for (var h = 0; h < (level.hearts || []).length; h++) {
-      var ht = level.hearts[h];
-      if (ht.dead) continue;
-      D.heart(ctx, worldX(ht.x + ht.w / 2), ht.y + ht.h / 2, state.t);
+    for (var h = 0; h < (level.critters || []).length; h++) {
+      var cr = level.critters[h];
+      if (cr.dead) continue;
+      var cx = worldX(cr.x + cr.w / 2);
+      var cy = cr.y + cr.h / 2;
+      if (cr.species === 'dog') D.pup(ctx, cx, cy, state.t, cr.dir);
+      else if (cr.species === 'bird') D.bird(ctx, cx, cy, state.t, cr.dir);
+      else D.cat(ctx, cx, cy, state.t, cr.dir);
     }
     for (var v = 0; v < (level.vacuums || []).length; v++) {
       var vac = level.vacuums[v];
@@ -412,7 +416,7 @@ var Billy = Billy || {};
     }
     for (var ct = 0; ct < (level.cats || []).length; ct++) {
       var cat = level.cats[ct];
-      D.cat(ctx, worldX(cat.x + cat.w / 2), cat.y + cat.h / 2, state.t);
+      D.cat(ctx, worldX(cat.x + cat.w / 2), cat.y + cat.h / 2, state.t, cat.dir);
     }
     for (var mh = 0; mh < (level.manholes || []).length; mh++) {
       D.manhole(ctx, worldX(level.manholes[mh].x), level.manholes[mh].y, level.manholes[mh].w);
