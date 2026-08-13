@@ -2,14 +2,18 @@ var Billy = Billy || {};
 
 (function () {
   var canvas = document.getElementById('game');
-  var C = Billy.CONFIG;
 
   function fit() {
-    canvas.width = C.WIDTH;
-    canvas.height = C.HEIGHT;
+    Billy.Display.fit(canvas);
   }
 
   fit();
   window.addEventListener('resize', fit);
+  window.addEventListener('orientationchange', function () {
+    setTimeout(fit, 80);
+  });
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', fit);
+  }
   Billy.Game.start(canvas);
 })();
