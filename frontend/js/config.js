@@ -40,8 +40,8 @@ Billy.CONFIG = {
   MONSTER_H: 28,
   BOSS_MONSTERS: 3,
   BOSS_DOGS: 3,
-  DOG_W: 56,
-  DOG_H: 44,
+  DOG_W: 82,
+  DOG_H: 70,
 
   CAR_W: 86,
   CAR_H: 28,

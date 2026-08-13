@@ -19,5 +19,11 @@ var Billy = Billy || {};
     }
   }
 
-  Billy.Camera = { create: create, follow: follow };
+  function lockOnArena(arena) {
+    if (!arena) return null;
+    var mid = (arena.left + arena.right) / 2;
+    return { x: mid - C.WIDTH / 2 };
+  }
+
+  Billy.Camera = { create: create, follow: follow, lockOnArena: lockOnArena };
 })();

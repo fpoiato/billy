@@ -396,7 +396,7 @@ var Billy = Billy || {};
     }
     state.elapsed += dt;
     var lock = null;
-    if (state.boss && state.boss.arena) lock = { x: state.boss.arena.left };
+    if (state.boss && state.boss.arena) lock = Billy.Camera.lockOnArena(state.boss.arena);
     updateWorld(dt, input);
     Billy.Camera.follow(state.cam, state.player, state.level, dt, lock);
   }
@@ -566,7 +566,7 @@ var Billy = Billy || {};
         D.bigDog(ctx, worldX(m.x + m.w / 2), m.y + m.h, state.t, {
           down: m.mode === 'down',
           bark: m.mode === 'bark',
-          dir: -1,
+          dir: (state.player.x + state.player.w / 2 >= m.x + m.w / 2) ? 1 : -1,
         });
       } else if (m.kind === 'camila') {
         D.camila(ctx, worldX(m.x + m.w / 2), m.y + m.h, state.t, {

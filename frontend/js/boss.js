@@ -4,6 +4,25 @@ var Billy = Billy || {};
   var C = Billy.CONFIG;
   var P = Billy.Physics;
 
+  function fightBand(arena, w) {
+    var mid = (arena.left + arena.right) / 2;
+    var half = Math.min(C.WIDTH * 0.28, Math.max(150, (arena.right - arena.left) * 0.28));
+    return {
+      left: mid - half,
+      right: mid + half - (w || 0),
+    };
+  }
+
+  function spawnX(arena, w) {
+    var band = fightBand(arena, w);
+    return (band.left + band.right) / 2;
+  }
+
+  function keepInBand(body, arena) {
+    var band = fightBand(arena, body.w);
+    body.x = P.clamp(body.x, band.left, band.right);
+  }
+
   function createBed(arena) {
     return {
       kind: 'bed',
@@ -49,8 +68,6 @@ var Billy = Billy || {};
     m.t += dt;
     if (m.pattern === 'walk') {
       m.vx = m.dir * (90 + boss.defeated * 25);
-      if (m.x < boss.arena.left + 20) m.dir = 1;
-      if (m.x + m.w > boss.arena.right - 20) m.dir = -1;
     } else {
       m.vx = Math.sign(player.x - m.x) * 120;
       if (m.t > 0.7 && m.vy === 0) {
@@ -60,6 +77,15 @@ var Billy = Billy || {};
     }
     m.vy += C.GRAVITY * dt;
     P.moveAndCollide(m, platforms, dt);
+    var band = fightBand(boss.arena, m.w);
+    if (m.x <= band.left) {
+      m.x = band.left;
+      if (m.pattern === 'walk') m.dir = 1;
+    }
+    if (m.x >= band.right) {
+      m.x = band.right;
+      if (m.pattern === 'walk') m.dir = -1;
+    }
 
     if (P.aabb(player, m)) {
       if (P.isStomp(player, m)) {
@@ -94,21 +120,32 @@ var Billy = Billy || {};
   }
 
   function spawnDog(boss) {
-    var gateX = boss.arena.gateX || (boss.arena.right - 90);
+    var x = spawnX(boss.arena, C.DOG_W);
     boss.monster = {
       kind: 'dog',
-      x: gateX - 30,
+      x: x,
       y: C.GROUND - C.DOG_H,
       w: C.DOG_W,
       h: C.DOG_H,
-      homeX: gateX - 30,
+      homeX: x,
       vx: 0,
       vy: 0,
       mode: 'bark',
       modeT: 1.05,
+      lungeDir: -1,
       t: 0,
     };
     Billy.Audio.bark();
+  }
+
+  function dogHead(d) {
+    var top = d.mode === 'down' ? d.y + 6 : d.y - 6;
+    return {
+      x: d.x + 6,
+      y: top,
+      w: d.w - 10,
+      h: Math.max(32, d.h * 0.58),
+    };
   }
 
   function updateDogs(boss, player, dt) {
@@ -120,43 +157,44 @@ var Billy = Billy || {};
     }
 
     var d = boss.monster;
+    var band = fightBand(boss.arena, d.w);
     d.t += dt;
     d.modeT -= dt;
     if (d.mode === 'bark') {
       d.x = d.homeX;
       if (d.modeT <= 0) {
         d.mode = 'down';
-        d.modeT = 0.95;
+        d.modeT = 1.35;
       }
     } else if (d.mode === 'down') {
       d.x = d.homeX;
       if (d.modeT <= 0) {
         d.mode = 'lunge';
         d.modeT = 0.55;
+        d.lungeDir = Math.sign((player.x + player.w / 2) - (d.x + d.w / 2)) || -1;
       }
     } else if (d.mode === 'lunge') {
-      d.x -= (240 + boss.defeated * 30) * dt;
-      if (d.x < boss.arena.left + 30 || d.modeT <= 0) {
+      d.x += d.lungeDir * (220 + boss.defeated * 24) * dt;
+      if (d.x <= band.left || d.x >= band.right || d.modeT <= 0) {
+        d.x = P.clamp(d.x, band.left, band.right);
         d.mode = 'back';
         d.modeT = 0.7;
       }
     } else {
-      d.x += 280 * dt;
-      if (d.x >= d.homeX) {
+      d.x += Math.sign(d.homeX - d.x) * 260 * dt;
+      if (Math.abs(d.x - d.homeX) < 6) {
         d.x = d.homeX;
         d.mode = 'bark';
         d.modeT = 0.85;
       }
     }
+    keepInBand(d, boss.arena);
 
     var body = { x: d.x, y: d.y, w: d.w, h: d.h };
-    if (d.mode === 'down') {
-      body.y = d.y + 12;
-      body.h = d.h - 12;
-    }
+    var head = dogHead(d);
 
-    if (P.aabb(player, body)) {
-      if (d.mode === 'down' && P.isStomp(player, body)) {
+    if (P.aabb(player, head) || P.aabb(player, body)) {
+      if (P.isStomp(player, head) || P.isStomp(player, body)) {
         player.vy = C.STOMP_BOUNCE;
         Billy.Audio.stomp();
         boss.defeated += 1;
@@ -180,7 +218,7 @@ var Billy = Billy || {};
       defeated: 0,
       monster: {
         kind: 'camila',
-        x: arena.right - 80 - C.CAMILA_W,
+        x: spawnX(arena, C.CAMILA_W),
         y: C.GROUND - C.CAMILA_H,
         w: C.CAMILA_W,
         h: C.CAMILA_H,
@@ -258,7 +296,7 @@ var Billy = Billy || {};
 
     c.vy += C.GRAVITY * dt;
     P.moveAndCollide(c, platforms, dt);
-    c.x = P.clamp(c.x, boss.arena.left + 8, boss.arena.right - c.w - 8);
+    keepInBand(c, boss.arena);
     body = { x: c.x, y: c.y, w: c.w, h: c.h };
 
     if (P.aabb(player, body) && !player.grabbed) {
@@ -285,7 +323,7 @@ var Billy = Billy || {};
       defeated: 0,
       monster: {
         kind: 'mayra',
-        x: arena.right - 80 - C.MAYRA_W,
+        x: spawnX(arena, C.MAYRA_W),
         y: C.GROUND - C.MAYRA_H,
         w: C.MAYRA_W,
         h: C.MAYRA_H,
@@ -378,7 +416,7 @@ var Billy = Billy || {};
 
     m.vy += C.GRAVITY * dt;
     P.moveAndCollide(m, platforms, dt);
-    m.x = P.clamp(m.x, boss.arena.left + 8, boss.arena.right - m.w - 8);
+    keepInBand(m, boss.arena);
     body = { x: m.x, y: m.y, w: m.w, h: m.h };
 
     if (P.aabb(player, body) && !player.grabbed) {
@@ -418,5 +456,7 @@ var Billy = Billy || {};
   Billy.Boss = {
     create: create,
     update: update,
+    fightBand: fightBand,
+    spawnX: spawnX,
   };
 })();

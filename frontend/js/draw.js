@@ -1212,29 +1212,133 @@ var Billy = Billy || {};
 
   function drawBigDog(ctx, x, y, t, opt) {
     opt = opt || {};
+    var down = !!opt.down;
+    var bark = !!opt.bark;
+    var dir = opt.dir || -1;
+    var crouch = down ? 16 : 0;
     ctx.save();
-    ctx.translate(x, y + (opt.down ? 10 : 0));
-    ctx.scale(opt.dir || -1, 1);
-    roundRect(ctx, -28, -28, 56, 32, 12);
+    ctx.translate(x, y + (down ? 4 : 0) + (bark ? Math.sin(t * 16) * 1.4 : 0));
+    ctx.scale(dir, 1);
+
+    ctx.strokeStyle = '#6d5b4a';
+    ctx.lineWidth = 7;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(-30, -8 - crouch);
+    ctx.quadraticCurveTo(-38, down ? -6 : -22, -34, down ? -2 : -4);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.ellipse(-34, down ? -2 : -4, 6, 4.5, -0.4, 0, Math.PI * 2);
+    paint(ctx, '#c48a4a', '#6b3f1c', 2);
+
+    var gait = down ? 0 : Math.sin(t * 10) * 5;
+    ctx.strokeStyle = '#6d5b4a';
+    ctx.lineWidth = 8;
+    ctx.beginPath();
+    ctx.moveTo(-18, -18);
+    ctx.lineTo(-20 - gait, -2);
+    ctx.moveTo(-6, -16);
+    ctx.lineTo(-4 + gait, -2);
+    ctx.moveTo(10, -16);
+    ctx.lineTo(8 - gait * 0.8, -2);
+    ctx.moveTo(22, -18);
+    ctx.lineTo(24 + gait * 0.8, -2);
+    ctx.stroke();
+    ctx.fillStyle = '#3d2e22';
+    ctx.beginPath();
+    ctx.ellipse(-20 - gait, -1, 7, 3.4, 0, 0, Math.PI * 2);
+    ctx.ellipse(-4 + gait, -1, 7, 3.4, 0, 0, Math.PI * 2);
+    ctx.ellipse(8 - gait * 0.8, -1, 7, 3.4, 0, 0, Math.PI * 2);
+    ctx.ellipse(24 + gait * 0.8, -1, 7, 3.4, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.ellipse(0, -28 - crouch * 0.15, 34, 20 + (down ? 2 : 0), -0.08, 0, Math.PI * 2);
     paint(ctx, '#6d5b4a', '#3d2e22', 3);
     ctx.beginPath();
-    ctx.ellipse(22, opt.down ? -18 : -30, 16, 14, 0.1, 0, Math.PI * 2);
+    ctx.ellipse(-4, -34 - crouch * 0.1, 22, 12, -0.2, 0, Math.PI * 2);
+    paint(ctx, '#c4a070', '#8a5a28', 2);
+
+    var headY = down ? -46 : -58;
+    ctx.beginPath();
+    ctx.ellipse(24, headY, 22, 20, 0.12, 0, Math.PI * 2);
     paint(ctx, '#6d5b4a', '#3d2e22', 3);
+
+    ctx.beginPath();
+    ctx.ellipse(18, headY - 18, 8, 14, -0.45, 0, Math.PI * 2);
+    paint(ctx, '#5a4636', '#3d2e22', 2);
+    ctx.beginPath();
+    ctx.ellipse(32, headY - 17, 7.5, 13, 0.4, 0, Math.PI * 2);
+    paint(ctx, '#5a4636', '#3d2e22', 2);
+    ctx.beginPath();
+    ctx.ellipse(18, headY - 16, 4, 8, -0.45, 0, Math.PI * 2);
+    ctx.ellipse(32, headY - 15, 3.6, 7, 0.4, 0, Math.PI * 2);
+    paint(ctx, '#e8c48a', '#a07840', 1.4);
+
+    ctx.beginPath();
+    ctx.ellipse(36, headY + 6, 16, 11, 0.15, 0, Math.PI * 2);
+    paint(ctx, '#e8c48a', '#a07840', 2.5);
+
+    roundRect(ctx, 14, headY + 10, 22, 8, 4);
+    paint(ctx, '#c4453a', '#7a241c', 2);
+    ctx.fillStyle = '#ffd24a';
+    ctx.beginPath();
+    ctx.arc(25, headY + 14, 3.4, 0, Math.PI * 2);
+    ctx.fill();
+
     ctx.fillStyle = '#fff';
     ctx.beginPath();
-    ctx.arc(26, opt.down ? -16 : -32, 4, 0, Math.PI * 2);
+    ctx.ellipse(28, headY - 4, 5.2, 6, 0, 0, Math.PI * 2);
     ctx.fill();
+    ctx.strokeStyle = '#3a2414';
+    ctx.lineWidth = 1.6;
+    ctx.stroke();
     ctx.fillStyle = '#1a120c';
     ctx.beginPath();
-    ctx.arc(27, opt.down ? -16 : -32, 2, 0, Math.PI * 2);
+    ctx.arc(30, headY - 3.4, down ? 2.8 : bark ? 2.6 : 2.2, 0, Math.PI * 2);
     ctx.fill();
-    if (opt.bark) {
-      ctx.strokeStyle = '#1a3a6b';
+    ctx.fillStyle = '#fff';
+    ctx.beginPath();
+    ctx.arc(31.2, headY - 5.2, 1.1, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.ellipse(48, headY + 6, 4, 3.2, 0, 0, Math.PI * 2);
+    paint(ctx, '#1a120c', '#1a120c', 1);
+
+    ctx.strokeStyle = '#3a2414';
+    ctx.lineWidth = 2;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    if (bark) {
+      ctx.ellipse(42, headY + 12, 7, 6 + Math.abs(Math.sin(t * 22)) * 2, 0.2, 0, Math.PI * 2);
+      paint(ctx, '#3a1810', '#1a0c08', 1.6);
+      ctx.strokeStyle = '#fff';
       ctx.lineWidth = 2;
       ctx.beginPath();
-      ctx.arc(36, -28, 8 + Math.sin(t * 20) * 2, -0.4, 0.4);
+      ctx.arc(54, headY + 4, 10 + Math.sin(t * 22) * 2, -0.45, 0.45);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(58, headY + 4, 15 + Math.sin(t * 22) * 2, -0.35, 0.35);
+      ctx.stroke();
+    } else if (down) {
+      ctx.arc(40, headY + 12, 6, 0.25, Math.PI - 0.25, true);
+      ctx.stroke();
+    } else {
+      ctx.arc(40, headY + 11, 5.5, 0.2, Math.PI - 0.2);
       ctx.stroke();
     }
+
+    if (down) {
+      ctx.fillStyle = '#ffe14a';
+      ctx.font = 'bold 16px Trebuchet MS, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.save();
+      ctx.scale(dir, 1);
+      ctx.fillText('!', 0, headY - 28);
+      ctx.restore();
+    }
+
     ctx.restore();
   }
 
