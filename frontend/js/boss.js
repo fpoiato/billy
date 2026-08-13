@@ -278,9 +278,132 @@ var Billy = Billy || {};
     return null;
   }
 
+  function createMayra(arena) {
+    return {
+      kind: 'mayra',
+      arena: arena,
+      defeated: 0,
+      monster: {
+        kind: 'mayra',
+        x: arena.right - 80 - C.MAYRA_W,
+        y: C.GROUND - C.MAYRA_H,
+        w: C.MAYRA_W,
+        h: C.MAYRA_H,
+        vx: 0,
+        vy: 0,
+        dir: -1,
+        mode: 'chase',
+        modeT: 0,
+        t: 0,
+        splashT: 0,
+      },
+      cooldown: 0,
+      brightness: 0.4,
+      done: false,
+      clearsPhase: false,
+    };
+  }
+
+  function stompMayra(boss, player, m) {
+    player.grabbed = false;
+    player.bathing = false;
+    player.vy = C.STOMP_BOUNCE;
+    if (Billy.Audio && Billy.Audio.stomp) Billy.Audio.stomp();
+    boss.defeated += 1;
+    m.mode = 'tired';
+    m.modeT = 0.4;
+    if (boss.defeated >= C.BOSS_MAYRA) {
+      boss.done = true;
+      m.mode = 'happy';
+      if (Billy.Audio && Billy.Audio.win) Billy.Audio.win();
+    }
+    return { stomped: true, x: m.x + m.w / 2, y: m.y };
+  }
+
+  function updateMayra(boss, player, dt, platforms) {
+    if (boss.done) {
+      player.grabbed = false;
+      player.bathing = false;
+      return;
+    }
+    var m = boss.monster;
+    if (!m) return;
+    m.t += dt;
+    var body = { x: m.x, y: m.y, w: m.w, h: m.h };
+
+    if (m.mode === 'bath') {
+      m.vx = 0;
+      player.grabbed = true;
+      player.bathing = true;
+      player.wet = Math.max(player.wet || 0, 1);
+      player.x = m.x + m.w / 2 - player.w / 2;
+      player.y = m.y + 18;
+      player.facing = m.dir;
+      m.modeT -= dt;
+      m.splashT -= dt;
+      var splash = null;
+      if (m.splashT <= 0) {
+        m.splashT = 0.1;
+        splash = {
+          bath: true,
+          x: player.x + player.w / 2,
+          y: player.y + 6,
+          puddle: Math.random() < 0.2,
+        };
+      }
+      if (m.modeT <= 0) {
+        player.grabbed = false;
+        player.bathing = false;
+        player.wet = 2.4;
+        player.vx = -m.dir * 280;
+        player.vy = -300;
+        m.mode = 'tired';
+        m.modeT = 1.2;
+        return { hit: true, bath: true, x: player.x + player.w / 2, y: player.y };
+      }
+      return splash;
+    }
+
+    var toward = Math.sign((player.x + player.w / 2) - (m.x + m.w / 2)) || m.dir;
+    if (m.mode === 'chase') {
+      m.dir = toward;
+      m.vx = m.dir * (C.MAYRA_SPEED + boss.defeated * 26);
+    } else if (m.mode === 'tired') {
+      m.vx = 0;
+      m.modeT -= dt;
+      if (m.modeT <= 0) m.mode = 'chase';
+    } else if (m.mode === 'happy') {
+      m.vx = 0;
+    }
+
+    m.vy += C.GRAVITY * dt;
+    P.moveAndCollide(m, platforms, dt);
+    m.x = P.clamp(m.x, boss.arena.left + 8, boss.arena.right - m.w - 8);
+    body = { x: m.x, y: m.y, w: m.w, h: m.h };
+
+    if (P.aabb(player, body) && !player.grabbed) {
+      if (P.isStomp(player, body) && m.mode !== 'bath') {
+        return stompMayra(boss, player, m);
+      }
+      if (m.mode === 'chase' && player.invuln <= 0) {
+        m.mode = 'bath';
+        m.modeT = 1.35;
+        m.vx = 0;
+        m.splashT = 0;
+        player.grabbed = true;
+        player.bathing = true;
+        player.wet = 1;
+        if (Billy.Audio && Billy.Audio.splash) Billy.Audio.splash();
+        return { bath: true, x: m.x + m.w / 2, y: m.y + 16 };
+      }
+    }
+    return null;
+  }
+
   function create(arena, kind) {
     if (kind === 'dogs') return createDogs(arena);
     if (kind === 'camila') return createCamila(arena);
+    if (kind === 'mayra') return createMayra(arena);
     return createBed(arena);
   }
 
@@ -288,6 +411,7 @@ var Billy = Billy || {};
     if (!boss) return null;
     if (boss.kind === 'dogs') return updateDogs(boss, player, dt);
     if (boss.kind === 'camila') return updateCamila(boss, player, dt, platforms);
+    if (boss.kind === 'mayra') return updateMayra(boss, player, dt, platforms);
     return updateBed(boss, player, dt, platforms);
   }
 
