@@ -20,12 +20,77 @@ var Billy = Billy || {};
       lives: C.START_LIVES,
       steaks: 0,
       animT: 0,
+      stillT: 0,
+      peeing: false,
+      peeT: 0,
+      peeCooldown: 0,
     };
+  }
+
+  var PEE_ZONE = {
+    sofa: { ox: 0, w: 110 },
+    bed: { ox: -90, w: 180 },
+    door: { ox: 0, w: 54 },
+  };
+
+  function peeZone(d) {
+    var z = PEE_ZONE[d.kind];
+    if (!z) return null;
+    return { x: d.x + z.ox, w: z.w };
+  }
+
+  function nearPeeSpot(p, level) {
+    var decos = level.decos || [];
+    var cx = p.x + p.w / 2;
+    for (var i = 0; i < decos.length; i++) {
+      var d = decos[i];
+      if (d.peed) continue;
+      var z = peeZone(d);
+      if (!z) continue;
+      if (cx >= z.x - 16 && cx <= z.x + z.w + 16) return d;
+    }
+    return null;
+  }
+
+  function updatePee(p, input, level, dt) {
+    if (p.peeCooldown > 0) p.peeCooldown -= dt;
+    if (p.peeing) {
+      p.peeT -= dt;
+      p.vx = 0;
+      if (p.peeT <= 0 || input.jumpPressed) {
+        p.peeing = false;
+        p.peeCooldown = 0.45;
+      }
+      return;
+    }
+    var still = p.onGround && Math.abs(p.vx) < 14 && input.dir === 0 && !input.jumpPressed;
+    var spot = still ? nearPeeSpot(p, level) : null;
+    if (spot && p.peeCooldown <= 0) {
+      p.stillT += dt;
+      if (p.stillT >= C.PEE_STILL) {
+        p.peeing = true;
+        p.peeT = C.PEE_TIME;
+        p.stillT = 0;
+        spot.peed = true;
+        if (!level.puddles) level.puddles = [];
+        level.puddles.push({
+          x: p.x + p.w / 2 - p.facing * 12,
+          y: C.GROUND - 2,
+          t: 0,
+        });
+        if (Billy.Audio && Billy.Audio.pee) Billy.Audio.pee();
+      }
+    } else {
+      p.stillT = 0;
+    }
   }
 
   function update(p, input, level, dt) {
     p.animT += dt;
     if (p.invuln > 0) p.invuln -= dt;
+
+    updatePee(p, input, level, dt);
+    var dir = p.peeing ? 0 : input.dir;
 
     if (p.onGround) p.coyote = C.COYOTE;
     else p.coyote -= dt;
@@ -34,13 +99,13 @@ var Billy = Billy || {};
     else p.jumpBuf -= dt;
 
     var accel = p.onGround ? C.ACCEL : C.AIR_ACCEL;
-    if (input.dir !== 0) {
-      if (p.onGround && Math.sign(p.vx) !== 0 && Math.sign(p.vx) !== input.dir && Math.abs(p.vx) > C.SKID_THRESHOLD) {
-        p.vx += input.dir * accel * 1.6 * dt;
+    if (dir !== 0) {
+      if (p.onGround && Math.sign(p.vx) !== 0 && Math.sign(p.vx) !== dir && Math.abs(p.vx) > C.SKID_THRESHOLD) {
+        p.vx += dir * accel * 1.6 * dt;
       } else {
-        p.vx += input.dir * accel * dt;
+        p.vx += dir * accel * dt;
       }
-      p.facing = input.dir;
+      p.facing = dir;
     } else if (p.onGround) {
       var rug = onRug(p, level.rugs);
       var fr = rug ? C.RUG_FRICTION : C.FRICTION;
@@ -117,6 +182,9 @@ var Billy = Billy || {};
   Billy.Player = {
     create: create,
     update: update,
+    updatePee: updatePee,
+    nearPeeSpot: nearPeeSpot,
+    peeZone: peeZone,
     hit: hit,
     addSteaks: addSteaks,
     onRug: onRug,

@@ -16,31 +16,28 @@ var Billy = Billy || {};
       number: 2,
       name: 'A Rua',
       nextId: 'beach',
-      playable: false,
+      playable: true,
       clearTitle: 'A Rua concluída!',
       clearLine: 'Os cachorros grandes ficaram para trás.',
-      comingLine: 'Em breve Billy corre pela cidade atrás do Patinho.',
     },
     {
       id: 'beach',
       number: 3,
       name: 'A Praia',
       nextId: 'grandma',
-      playable: false,
+      playable: true,
       clearTitle: 'Praia concluída!',
       clearLine: 'Billy achou o Patinho Amarelo!',
-      comingLine: 'Em breve o reencontro na areia.',
     },
     {
       id: 'grandma',
       number: 4,
       name: 'Casa da Vó',
       nextId: null,
-      playable: false,
+      playable: true,
       isFinale: true,
       clearTitle: 'Você venceu!',
       clearLine: 'Billy e o Patinho estão juntos na casa da vovó.',
-      comingLine: 'Em breve a festa na casa da vovó.',
     },
   ];
 
@@ -61,6 +58,9 @@ var Billy = Billy || {};
     var spec = get(id);
     if (!spec || !spec.playable) return null;
     if (spec.id === 'house') return Billy.Levels.createHouse();
+    if (spec.id === 'street') return Billy.Levels.createStreet();
+    if (spec.id === 'beach') return Billy.Levels.createBeach();
+    if (spec.id === 'grandma') return Billy.Levels.createGrandma();
     return null;
   }
 

@@ -40,11 +40,13 @@
   }
 
   function deco(level, kind, x, y) {
-    level.decos.push({ kind: kind, x: x, y: y });
+    var pee = kind === 'sofa' || kind === 'bed' || kind === 'door';
+    level.decos.push({ kind: kind, x: x, y: y, pee: pee, peed: false });
   }
 
   function roomLiving(level, x0) {
     plat(level, x0, C.GROUND, 1600, 90);
+    deco(level, 'door', x0 + 40, C.GROUND);
     deco(level, 'sofa', x0 + 180, C.GROUND);
     plat(level, x0 + 190, C.GROUND - 36, 100, 12);
     steaksLine(level, x0 + 210, C.GROUND - 70, 3, 40);
@@ -190,6 +192,8 @@
     var level = {
       id: 'house',
       name: 'Casa',
+      theme: 'house',
+      music: 'day',
       width: 0,
       platforms: [],
       rugs: [],
@@ -198,10 +202,14 @@
       vacuums: [],
       brooms: [],
       decos: [],
+      puddles: [],
       spawn: { x: 80, y: C.GROUND - C.PLAYER_H - 2 },
       checkpoint: null,
       dayEndX: 0,
       night: false,
+      bossKind: 'bed',
+      bossBanner: 'Monstros debaixo da cama!',
+      intro: 2.8,
     };
 
     var x = 0;

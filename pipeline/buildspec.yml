@@ -18,6 +18,9 @@ phases:
       - test -f frontend/js/game.js
       - test -f frontend/js/campaign.js
       - test -f frontend/js/results.js
+      - test -f frontend/js/levels/street.js
+      - test -f frontend/js/levels/beach.js
+      - test -f frontend/js/levels/grandma.js
 
   build:
     commands:
