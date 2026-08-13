@@ -9,7 +9,10 @@ test('house level has day, checkpoint, night and boss arena', () => {
   assert.ok(level.width > 8000);
   assert.ok(level.checkpoint);
   assert.ok(level.dayEndX > 0);
+  assert.ok(level.mayraArena);
+  assert.equal(level.mayraArena.left, level.dayEndX);
   assert.ok(level.dayEndX < level.bossArena.left);
+  assert.ok(level.mayraArena.right < level.bossArena.left);
   assert.ok(level.steaks.length >= 50);
   assert.ok(level.critters.length >= 3);
   assert.ok(level.critters.some((c) => c.species === 'dog'));

@@ -33,6 +33,7 @@ var Billy = Billy || {};
       cam: Billy.Camera.create(),
       fx: Billy.Fx.create(),
       boss: null,
+      mayraDone: false,
       t: 0,
       elapsed: 0,
       showTimer: true,
@@ -146,8 +147,8 @@ var Billy = Billy || {};
     p.vx = 0;
     p.vy = 0;
     p.invuln = 1.2;
-    if (state.boss && !state.boss.done) {
-      p.x = state.level.bossArena.left + 60;
+    if (state.boss && !state.boss.done && state.boss.arena) {
+      p.x = state.boss.arena.left + 60;
       p.y = C.GROUND - p.h;
     }
   }
@@ -253,7 +254,7 @@ var Billy = Billy || {};
     Billy.Enemies.updateYardDogs(level.yardDogs || [], p, dt);
     Billy.Fx.update(state.fx, dt);
     collectSteaks(dt);
-    if (!p.grabbed && !p.kissing) collideHazards();
+    if (!p.grabbed && !p.kissing && !p.bathing) collideHazards();
 
     if (level.checkpoint && !level.checkpoint.used && p.x + p.w > level.checkpoint.x) {
       level.checkpoint.used = true;
@@ -268,14 +269,19 @@ var Billy = Billy || {};
       Billy.Audio.music('night');
     }
 
+    if (!state.boss && level.mayraArena && !state.mayraDone && p.x > level.mayraArena.left + 40) {
+      state.boss = Billy.Boss.create(level.mayraArena, 'mayra');
+      Billy.Audio.music('boss');
+      state.banner = level.mayraBanner || 'Mayra quer dar banho!';
+      state.bannerT = 1.6;
+    }
+
     var arena = level.bossArena;
-    if (arena && p.x > arena.left + 40) {
-      if (!state.boss) {
-        state.boss = Billy.Boss.create(arena, level.bossKind);
-        Billy.Audio.music('boss');
-        state.banner = level.bossBanner || 'Cuidado!';
-        state.bannerT = 1.6;
-      }
+    if (!state.boss && arena && p.x > arena.left + 40) {
+      state.boss = Billy.Boss.create(arena, level.bossKind);
+      Billy.Audio.music('boss');
+      state.banner = level.bossBanner || 'Cuidado!';
+      state.bannerT = 1.6;
     }
 
     if (state.boss && !state.boss.done) {
@@ -283,17 +289,46 @@ var Billy = Billy || {};
       if (ev && ev.stomped) {
         Billy.Fx.sparkleBurst(state.fx.sparkles, ev.x, ev.y, '#ffe14a');
         Billy.Fx.sparkleBurst(state.fx.sparkles, ev.x, ev.y, '#fff');
-      } else if (ev && ev.grab) {
+      }
+      if (ev && ev.grab) {
         Billy.Fx.sparkleBurst(state.fx.sparkles, ev.x, ev.y, '#ff5a7a');
-      } else if (ev && ev.hit) {
+      }
+      if (ev && ev.bath) {
+        if (Billy.Fx.splash) Billy.Fx.splash(state.fx.sparkles, ev.x, ev.y);
+        else {
+          Billy.Fx.sparkleBurst(state.fx.sparkles, ev.x, ev.y, '#7ec8ff');
+          Billy.Fx.sparkleBurst(state.fx.sparkles, ev.x, ev.y, '#fff');
+        }
+        if (ev.puddle) {
+          if (!level.puddles) level.puddles = [];
+          level.puddles.push({ x: ev.x, y: C.GROUND - 2, t: 0, kind: 'soap' });
+        }
+      }
+      if (ev && ev.hit) {
         hurtPlayer(state.boss.monster);
       }
     } else if (state.boss && state.boss.done) {
-      reuniteDuck(dt);
-      state.clearT += dt;
-      var bossWait = p.kissing ? 3.2 : 4.2;
-      if (state.clearT > bossWait && state.screen === 'playing') {
-        beginResults();
+      if (state.boss.clearsPhase === false) {
+        state.clearT += dt;
+        p.grabbed = false;
+        p.bathing = false;
+        if (state.clearT > 1.15 && state.screen === 'playing') {
+          state.spawn = {
+            x: state.boss.arena.right - 90,
+            y: C.GROUND - p.h,
+          };
+          state.mayraDone = true;
+          state.boss = null;
+          state.clearT = 0;
+          Billy.Audio.music('night');
+        }
+      } else {
+        reuniteDuck(dt);
+        state.clearT += dt;
+        var bossWait = p.kissing ? 3.2 : 4.2;
+        if (state.clearT > bossWait && state.screen === 'playing') {
+          beginResults();
+        }
       }
     }
 
@@ -310,8 +345,9 @@ var Billy = Billy || {};
       if (state.clearT > (p.kissing ? 3.2 : 4.2)) beginResults();
     }
 
-    if (state.boss && arena) {
-      p.x = P.clamp(p.x, arena.left + 10, arena.right - p.w - 10);
+    var hold = state.boss && state.boss.arena;
+    if (hold) {
+      p.x = P.clamp(p.x, state.boss.arena.left + 10, state.boss.arena.right - p.w - 10);
     }
 
     var barkExtras = [];
@@ -349,7 +385,7 @@ var Billy = Billy || {};
     }
     state.elapsed += dt;
     var lock = null;
-    if (state.boss) lock = { x: state.level.bossArena.left };
+    if (state.boss && state.boss.arena) lock = { x: state.boss.arena.left };
     updateWorld(dt, input);
     Billy.Camera.follow(state.cam, state.player, state.level, dt, lock);
   }
@@ -518,6 +554,13 @@ var Billy = Billy || {};
           tired: m.mode === 'tired',
           happy: m.mode === 'happy' || (state.boss && state.boss.done),
         });
+      } else if (m.kind === 'mayra') {
+        D.mayra(ctx, worldX(m.x + m.w / 2), m.y + m.h, state.t, {
+          dir: m.dir,
+          bath: m.mode === 'bath',
+          tired: m.mode === 'tired',
+          happy: m.mode === 'happy' || (state.boss && state.boss.done),
+        });
       } else {
         D.monster(ctx, worldX(m.x + m.w / 2), m.y + m.h / 2, state.t);
       }
@@ -552,13 +595,14 @@ var Billy = Billy || {};
         run: Math.abs(pl.vx) > 40 && pl.onGround && !pl.peeing && !pl.grabbed && !pl.eating && !pl.pooping,
         air: !pl.onGround && !pl.grabbed,
         hurt: pl.invuln > 0 && !pl.grabbed,
-        scared: (night && !(state.boss && state.boss.done)) || pl.grabbed,
+        scared: (night && !(state.boss && state.boss.done)) || pl.grabbed || pl.bathing,
         pee: pl.peeing && !pl.grabbed,
         poop: pl.pooping && !pl.grabbed,
         eat: pl.eating && !pl.grabbed,
         fat: pl.fat || 0,
         bulge: pl.bulge || 0,
-        bark: pl.barking && !pl.eating && !pl.pooping,
+        bark: pl.barking && !pl.eating && !pl.pooping && !pl.bathing,
+        wet: !!(pl.bathing || pl.wet > 0),
       });
     }
 
