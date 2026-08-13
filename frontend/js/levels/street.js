@@ -136,6 +136,7 @@
       gateX: x0 + w - 90,
     };
     B.deco(level, 'gate', x0 + w - 70, C.GROUND);
+    B.deco(level, 'toy', x0 + w - 240, C.GROUND, { kiss: true, clearKiss: true });
     return w;
   }
 

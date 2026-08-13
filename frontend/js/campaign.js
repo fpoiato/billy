@@ -9,7 +9,7 @@ var Billy = Billy || {};
       nextId: 'street',
       playable: true,
       clearTitle: 'Casa concluída!',
-      clearLine: 'Billy foi corajoso. O Patinho ainda está perdido...',
+      clearLine: 'O Patinho Amarelo apareceu no fim da casa!',
     },
     {
       id: 'street',
@@ -18,7 +18,7 @@ var Billy = Billy || {};
       nextId: 'beach',
       playable: true,
       clearTitle: 'A Rua concluída!',
-      clearLine: 'Os cachorros grandes ficaram para trás.',
+      clearLine: 'O Patinho estava no portão. Um encontro e... CENSURADO!',
     },
     {
       id: 'beach',

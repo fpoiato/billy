@@ -75,6 +75,29 @@ var Billy = Billy || {};
     Billy.Display.requestFullscreen();
   }
 
+  function endDuck(level) {
+    var decos = (level && level.decos) || [];
+    for (var i = 0; i < decos.length; i++) {
+      var d = decos[i];
+      if (d.kind === 'toy' && (d.kiss || d.clearKiss)) return d;
+    }
+    return null;
+  }
+
+  function reuniteDuck(dt) {
+    var duck = endDuck(state.level);
+    var p = state.player;
+    if (!duck || !p) return;
+    duck.kiss = true;
+    duck.kissReady = true;
+    var target = p.x + p.w / 2 + 22;
+    if (state.clearT > 1.15 && Math.abs(duck.x - target) > 80) {
+      duck.x = target;
+    } else if (Math.abs(duck.x - target) > 6) {
+      duck.x += Math.sign(target - duck.x) * 240 * dt;
+    }
+  }
+
   function beginResults() {
     state.screen = 'results';
     state.results = Billy.Results.create({
@@ -265,8 +288,9 @@ var Billy = Billy || {};
         hurtPlayer(state.boss.monster);
       }
     } else if (state.boss && state.boss.done) {
+      reuniteDuck(dt);
       state.clearT += dt;
-      var bossWait = p.kissing ? 3.4 : 1.4;
+      var bossWait = p.kissing ? 3.2 : 4.2;
       if (state.clearT > bossWait && state.screen === 'playing') {
         beginResults();
       }
@@ -280,8 +304,9 @@ var Billy = Billy || {};
       Billy.Audio.win();
     }
     if (state.goalHit && state.screen === 'playing') {
+      reuniteDuck(dt);
       state.clearT += dt;
-      if (state.clearT > (p.kissing ? 3.4 : 1.6)) beginResults();
+      if (state.clearT > (p.kissing ? 3.2 : 4.2)) beginResults();
     }
 
     if (state.boss && arena) {
@@ -470,8 +495,14 @@ var Billy = Billy || {};
     var pl = state.player;
     var kiss = pl.kissing && pl.kissDuck;
     var hearts = pl.kissHearts || [];
+    var kissHearts = [];
     for (var kh = 0; kh < hearts.length; kh++) {
-      D.loveHeart(ctx, worldX(hearts[kh].x), hearts[kh].y, hearts[kh].s, hearts[kh].life);
+      kissHearts.push({
+        x: worldX(hearts[kh].x),
+        y: hearts[kh].y,
+        s: hearts[kh].s,
+        life: hearts[kh].life,
+      });
     }
 
     var billyX = pl.x + pl.w / 2;
@@ -481,20 +512,20 @@ var Billy = Billy || {};
       billyX = midX - 16 * pl.facing;
     }
     D.shadow(ctx, worldX(pl.x + pl.w / 2), C.GROUND + 4, !pl.onGround && !pl.grabbed);
-    D.billy(ctx, worldX(billyX), pl.y + pl.h, {
-      t: state.t,
-      facing: pl.facing,
-      run: Math.abs(pl.vx) > 40 && pl.onGround && !pl.peeing && !pl.grabbed && !kiss,
-      air: !pl.onGround && !pl.grabbed,
-      hurt: pl.invuln > 0 && !pl.grabbed && !kiss,
-      scared: (night && !(state.boss && state.boss.done)) || pl.grabbed,
-      pee: pl.peeing && !pl.grabbed,
-      bulge: pl.bulge || 0,
-      bark: pl.barking && !kiss,
-    });
     if (kiss) {
-      D.duck(ctx, worldX(midX + 16 * pl.facing), C.GROUND - 16, state.t, 1, -pl.facing);
-      D.censored(ctx, worldX(midX), C.GROUND - 38, 128);
+      D.coupleKiss(ctx, worldX(midX), pl.y + pl.h, state.t, pl.facing, kissHearts);
+    } else {
+      D.billy(ctx, worldX(billyX), pl.y + pl.h, {
+        t: state.t,
+        facing: pl.facing,
+        run: Math.abs(pl.vx) > 40 && pl.onGround && !pl.peeing && !pl.grabbed,
+        air: !pl.onGround && !pl.grabbed,
+        hurt: pl.invuln > 0 && !pl.grabbed,
+        scared: (night && !(state.boss && state.boss.done)) || pl.grabbed,
+        pee: pl.peeing && !pl.grabbed,
+        bulge: pl.bulge || 0,
+        bark: pl.barking,
+      });
     }
 
     if (state.intro > 0 && theme === 'house') {

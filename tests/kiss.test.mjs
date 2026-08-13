@@ -40,3 +40,16 @@ test('running past the duck does not start a kiss', () => {
   Billy.Player.updateKiss(p, { dir: 1, jumpPressed: false }, level, 0.2);
   assert.equal(p.kissing, false);
 });
+
+test('a stage-end duck does not namorar until the phase is cleared', () => {
+  const p = Billy.Player.create(200, C.GROUND - C.PLAYER_H);
+  p.onGround = true;
+  p.vx = 0;
+  const duck = { kind: 'toy', x: 220, y: C.GROUND, kiss: true, clearKiss: true };
+  const level = { decos: [duck], rugs: [], platforms: [], width: 800 };
+  Billy.Player.updateKiss(p, { dir: 0, jumpPressed: false }, level, 0.2);
+  assert.equal(p.kissing, false);
+  duck.kissReady = true;
+  Billy.Player.updateKiss(p, { dir: 0, jumpPressed: false }, level, 0.2);
+  assert.equal(p.kissing, true);
+});

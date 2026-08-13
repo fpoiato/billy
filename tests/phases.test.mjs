@@ -41,6 +41,7 @@ test('street has cars, manholes, a checkpoint and a dog boss arena', () => {
   assert.ok(level.bossArena.gateX > level.bossArena.left);
   assert.ok(level.steaks.length >= 40);
   assert.ok(level.decos.some((d) => d.kind === 'door' && d.pee));
+  assert.ok(level.decos.some((d) => d.kind === 'toy' && d.kiss && d.clearKiss));
 });
 
 test('beach has crabs, waves, seagulls and a reunion goal', () => {
@@ -72,4 +73,5 @@ test('grandma has yarn, needles, vases, cat and Camila as boss', () => {
   assert.equal(level.bossKind, 'camila');
   assert.ok(level.bossArena);
   assert.ok(level.decos.some((d) => d.kind === 'sofa' && d.pee));
+  assert.ok(level.decos.some((d) => d.kind === 'toy' && d.kiss && d.clearKiss));
 });

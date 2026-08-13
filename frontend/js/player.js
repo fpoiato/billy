@@ -100,6 +100,7 @@ var Billy = Billy || {};
     for (var i = 0; i < decos.length; i++) {
       var d = decos[i];
       if (d.kind !== 'toy' || !d.kiss) continue;
+      if (d.clearKiss && !d.kissReady) continue;
       if (Math.abs(cx - d.x) <= C.KISS_RANGE) return d;
     }
     return null;
