@@ -42,7 +42,7 @@ var Billy = Billy || {};
       night: false,
       banner: '',
       bannerT: 0,
-      duckX: 140,
+      duckX: (level.spawn && level.spawn.x || 80) + 80,
       clearT: 0,
       spawn: { x: level.spawn.x, y: level.spawn.y },
       results: null,

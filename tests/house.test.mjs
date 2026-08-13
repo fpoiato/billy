@@ -20,7 +20,7 @@ test('house level has day, checkpoint, night and boss arena', () => {
   assert.ok(level.critters.some((c) => c.species === 'bird'));
   assert.equal((level.hearts || []).length, 0);
   assert.ok(level.platforms.length > 10);
-  assert.equal(level.spawn.x > 0, true);
+  assert.ok(level.spawn.x >= 200);
   assert.ok(level.decos.some((d) => d.kind === 'sofa' && d.pee));
   assert.ok(level.decos.some((d) => d.kind === 'bed' && d.pee));
   assert.ok(level.decos.some((d) => d.kind === 'door' && d.pee));
