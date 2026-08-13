@@ -52,6 +52,46 @@ body {
   height: 100%;
 }
 
+#btn-music {
+  position: absolute;
+  top: max(10px, env(safe-area-inset-top));
+  right: max(10px, env(safe-area-inset-right));
+  z-index: 3;
+  appearance: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border: 4px solid #1a3a6b;
+  border-radius: 999px;
+  padding: 8px 14px;
+  font: 700 16px/1 "Trebuchet MS", sans-serif;
+  color: #1a3a6b;
+  background: rgba(255, 210, 74, 0.95);
+  box-shadow: 0 4px 0 #c79212;
+  cursor: pointer;
+  pointer-events: auto;
+  touch-action: manipulation;
+}
+
+#btn-music .icon {
+  font-size: 18px;
+}
+
+#btn-music.is-off {
+  background: rgba(220, 220, 220, 0.95);
+  color: #5a5a5a;
+  box-shadow: 0 4px 0 #888;
+}
+
+#btn-music.is-off .icon {
+  text-decoration: line-through;
+}
+
+#btn-music:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 #c79212;
+}
+
 #touch {
   position: absolute;
   inset: auto 0 0 0;

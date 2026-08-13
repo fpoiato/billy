@@ -3,9 +3,14 @@ var Billy = Billy || {};
 (function () {
   var ctx = null;
   var muted = false;
+  var musicOff = false;
   var musicTimer = null;
   var musicKind = null;
   var startedAt = 0;
+
+  try {
+    musicOff = localStorage.getItem('billy-music-off') === '1';
+  } catch (e) {}
 
   function ac() {
     if (!ctx) {
@@ -70,7 +75,7 @@ var Billy = Billy || {};
 
   function playTune(kind) {
     var a = ac();
-    if (!a || muted) return;
+    if (!a || muted || musicOff) return;
     var notes = TUNES[kind] || TUNES.day;
     var t0 = a.currentTime;
     for (var i = 0; i < notes.length; i++) {
@@ -92,6 +97,7 @@ var Billy = Billy || {};
   function startMusic(kind) {
     musicKind = kind;
     stopMusic();
+    if (musicOff) return;
     playTune(kind);
     var period = kind === 'night' ? 2000 : kind === 'boss' ? 1400 : 1800;
     musicTimer = setInterval(function () {
@@ -109,10 +115,28 @@ var Billy = Billy || {};
     toggleMute: function () {
       muted = !muted;
       if (muted) stopMusic();
-      else if (musicKind) startMusic(musicKind);
+      else if (musicKind && !musicOff) startMusic(musicKind);
       return muted;
     },
+    toggleMusic: function () {
+      musicOff = !musicOff;
+      try { localStorage.setItem('billy-music-off', musicOff ? '1' : '0'); } catch (e) {}
+      if (musicOff) stopMusic();
+      else if (musicKind && !muted) startMusic(musicKind);
+      Billy.Audio.syncButton();
+      return musicOff;
+    },
     isMuted: function () { return muted; },
+    isMusicOff: function () { return musicOff; },
+    syncButton: function () {
+      var el = document.getElementById('btn-music');
+      if (!el) return;
+      var off = musicOff;
+      el.classList.toggle('is-off', off);
+      el.setAttribute('aria-pressed', off ? 'true' : 'false');
+      el.setAttribute('aria-label', off ? 'Ligar música' : 'Desligar música');
+      el.querySelector('.label').textContent = off ? 'Música off' : 'Música';
+    },
     jump: function () { beep(620, 0.12, 'square', 0.07, 420); },
     stomp: function () { beep(180, 0.16, 'triangle', 0.1, 90); },
     steak: function () { beep(880, 0.09, 'sine', 0.07); },

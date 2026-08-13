@@ -475,7 +475,7 @@ var Billy = Billy || {};
       goMenu();
       canvas.addEventListener('pointerdown', onPointer);
       window.addEventListener('keydown', function (e) {
-        if (e.code === 'KeyM') Billy.Audio.toggleMute();
+        if (e.code === 'KeyM') Billy.Audio.toggleMusic();
         if ((e.code === 'Enter' || e.code === 'Space') && state.screen === 'menu') {
           e.preventDefault();
           startGame();
