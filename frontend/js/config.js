@@ -87,4 +87,5 @@ Billy.CONFIG = {
   BOSS_MAYRA: 3,
 
   START_LIVES: 3,
+  SPAWN_X: 300,
 };

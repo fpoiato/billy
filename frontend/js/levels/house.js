@@ -245,7 +245,7 @@
       brooms: [],
       decos: [],
       puddles: [],
-      spawn: { x: 80, y: C.GROUND - C.PLAYER_H - 2 },
+      spawn: { x: C.SPAWN_X || 300, y: C.GROUND - C.PLAYER_H - 2 },
       checkpoint: null,
       dayEndX: 0,
       night: false,
