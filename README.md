@@ -23,4 +23,4 @@ npx --yes serve frontend -p 5173
 | `pipeline/` | CodeBuild: testa e publica a pasta `frontend/` |
 | `.github/workflows/` | CI no PR; deploy no push para `main` |
 
-Fase 1 (Casa + chefão debaixo da cama) está jogável. Fases 2–4 entram depois.
+Fase 1 (Casa) até a fase 5 (Casa da Vó) estão jogáveis, incluindo o passeio com o papai.

@@ -52,10 +52,10 @@ var Billy = Billy || {};
    * Pisão estilo Goomba: caindo, pés perto do topo do inimigo.
    */
   function isStomp(player, enemy) {
-    if (player.vy <= 80) return false;
+    if (player.vy <= 40) return false;
     var feet = player.y + player.h;
-    var head = enemy.y + Math.min(12, enemy.h * 0.45);
-    return feet <= head + 10 && player.y < enemy.y;
+    var head = enemy.y + Math.max(16, enemy.h * 0.42);
+    return feet <= head + 14 && feet < enemy.y + enemy.h * 0.7;
   }
 
   /**

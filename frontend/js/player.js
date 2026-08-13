@@ -376,6 +376,7 @@ var Billy = Billy || {};
     var max = p.onGround ? C.MAX_SPEED : C.MAX_AIR_SPEED;
     if (onRug(p, level.rugs) && p.onGround) max *= 1.25;
     if (p.fat > 0) max *= 1 - p.fat * 0.42;
+    if (level.leash) max *= C.LEASH_SPEED;
     p.vx = P.clamp(p.vx, -max, max);
 
     if (p.eating || p.pooping) p.jumpBuf = 0;
