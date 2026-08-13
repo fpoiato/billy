@@ -173,14 +173,121 @@ var Billy = Billy || {};
     return null;
   }
 
+  function createCamila(arena) {
+    return {
+      kind: 'camila',
+      arena: arena,
+      defeated: 0,
+      monster: {
+        kind: 'camila',
+        x: arena.right - 80 - C.CAMILA_W,
+        y: C.GROUND - C.CAMILA_H,
+        w: C.CAMILA_W,
+        h: C.CAMILA_H,
+        vx: 0,
+        vy: 0,
+        dir: -1,
+        mode: 'chase',
+        modeT: 0,
+        t: 0,
+      },
+      cooldown: 0,
+      brightness: 1,
+      done: false,
+    };
+  }
+
+  function stompCamila(boss, player, c) {
+    player.grabbed = false;
+    player.bulge = 0;
+    player.vy = C.STOMP_BOUNCE;
+    if (Billy.Audio && Billy.Audio.stomp) Billy.Audio.stomp();
+    boss.defeated += 1;
+    c.mode = 'tired';
+    c.modeT = 0.35;
+    if (boss.defeated >= C.BOSS_CAMILA) {
+      boss.done = true;
+      c.mode = 'happy';
+      if (Billy.Audio && Billy.Audio.win) Billy.Audio.win();
+    }
+    return { stomped: true, x: c.x + c.w / 2, y: c.y };
+  }
+
+  function updateCamila(boss, player, dt, platforms) {
+    if (boss.done) {
+      player.grabbed = false;
+      player.bulge = 0;
+      return;
+    }
+    var c = boss.monster;
+    if (!c) return;
+    c.t += dt;
+    var body = { x: c.x, y: c.y, w: c.w, h: c.h };
+
+    if (c.mode === 'grab') {
+      c.vx = 0;
+      player.grabbed = true;
+      player.bulge = Math.min(1, player.bulge + dt * 1.6);
+      player.x = c.x + c.w / 2 - player.w / 2;
+      player.y = c.y + 22;
+      player.facing = c.dir;
+      c.modeT -= dt;
+      if (c.modeT <= 0) {
+        player.grabbed = false;
+        player.bulge = 0;
+        player.vx = -c.dir * 280;
+        player.vy = -320;
+        c.mode = 'tired';
+        c.modeT = 1.15;
+        return { hit: true };
+      }
+      return null;
+    }
+
+    var toward = Math.sign((player.x + player.w / 2) - (c.x + c.w / 2)) || c.dir;
+    if (c.mode === 'chase') {
+      c.dir = toward;
+      c.vx = c.dir * (C.CAMILA_SPEED + boss.defeated * 28);
+    } else if (c.mode === 'tired') {
+      c.vx = 0;
+      c.modeT -= dt;
+      if (c.modeT <= 0) c.mode = 'chase';
+    } else if (c.mode === 'happy') {
+      c.vx = 0;
+    }
+
+    c.vy += C.GRAVITY * dt;
+    P.moveAndCollide(c, platforms, dt);
+    c.x = P.clamp(c.x, boss.arena.left + 8, boss.arena.right - c.w - 8);
+    body = { x: c.x, y: c.y, w: c.w, h: c.h };
+
+    if (P.aabb(player, body) && !player.grabbed) {
+      if (P.isStomp(player, body) && c.mode !== 'grab') {
+        return stompCamila(boss, player, c);
+      }
+      if (c.mode === 'chase' && player.invuln <= 0) {
+        c.mode = 'grab';
+        c.modeT = 1.2;
+        c.vx = 0;
+        player.grabbed = true;
+        player.bulge = 0.15;
+        if (Billy.Audio && Billy.Audio.squeak) Billy.Audio.squeak();
+        return { grab: true, x: c.x + c.w / 2, y: c.y + 20 };
+      }
+    }
+    return null;
+  }
+
   function create(arena, kind) {
     if (kind === 'dogs') return createDogs(arena);
+    if (kind === 'camila') return createCamila(arena);
     return createBed(arena);
   }
 
   function update(boss, player, dt, platforms) {
     if (!boss) return null;
     if (boss.kind === 'dogs') return updateDogs(boss, player, dt);
+    if (boss.kind === 'camila') return updateCamila(boss, player, dt, platforms);
     return updateBed(boss, player, dt, platforms);
   }
 

@@ -51,14 +51,15 @@ test('beach has crabs, waves, seagulls and a reunion goal', () => {
   assert.equal(level.bossArena, null);
 });
 
-test('grandma has yarn, needles, vases, cat and a finale goal', () => {
+test('grandma has yarn, needles, vases, cat and Camila as boss', () => {
   const level = Billy.Levels.createGrandma();
   assert.ok(level.width > 7000);
   assert.ok(level.yarns.length >= 2);
   assert.ok(level.needles.length >= 1);
   assert.ok(level.vases.length >= 2);
   assert.ok(level.cats.length >= 1);
-  assert.ok(level.goal);
+  assert.equal(level.goal, null);
+  assert.equal(level.bossKind, 'camila');
+  assert.ok(level.bossArena);
   assert.ok(level.decos.some((d) => d.kind === 'sofa' && d.pee));
-  assert.ok(level.decos.some((d) => d.kind === 'bed' && d.pee));
 });

@@ -24,6 +24,8 @@ var Billy = Billy || {};
       peeing: false,
       peeT: 0,
       peeCooldown: 0,
+      grabbed: false,
+      bulge: 0,
     };
   }
 
@@ -88,6 +90,12 @@ var Billy = Billy || {};
   function update(p, input, level, dt) {
     p.animT += dt;
     if (p.invuln > 0) p.invuln -= dt;
+
+    if (p.grabbed) {
+      p.vx = 0;
+      p.vy = 0;
+      return;
+    }
 
     updatePee(p, input, level, dt);
     var dir = p.peeing ? 0 : input.dir;
