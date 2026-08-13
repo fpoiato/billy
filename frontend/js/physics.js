@@ -25,6 +25,8 @@ var Billy = Billy || {};
       var p = platforms[i];
       if (!aabb(body, p)) continue;
       if (prevBottom <= p.y + 3) continue;
+      // Assento de sofá e plataformas finas: atravessa pelo chão, sobe por cima.
+      if (prevBottom > p.y + p.h + 4) continue;
       if (body.vx > 0) body.x = p.x - body.w;
       else if (body.vx < 0) body.x = p.x + p.w;
       body.vx = 0;

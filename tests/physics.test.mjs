@@ -41,6 +41,23 @@ test('walking on a wide floor does not eject sideways', () => {
   assert.equal(body.y, 422);
 });
 
+test('thin sofa seats do not block walking on the ground', () => {
+  const floor = { x: 0, y: C.GROUND, w: 800, h: 90 };
+  const sofa = { x: 140, y: C.GROUND - 36, w: 100, h: 12 };
+  const body = {
+    x: 100,
+    y: C.GROUND - C.PLAYER_H,
+    w: C.PLAYER_W,
+    h: C.PLAYER_H,
+    vx: 220,
+    vy: 0,
+    onGround: true,
+  };
+  const before = body.x;
+  P.moveAndCollide(body, [floor, sofa], 0.016);
+  assert.ok(body.x > before, 'x=' + body.x);
+});
+
 test('version is semver', () => {
   assert.match(Billy.APP_VERSION, /^\d+\.\d+\.\d+$/);
 });

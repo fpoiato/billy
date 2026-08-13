@@ -21,5 +21,11 @@ test('house level has day, checkpoint, night and boss arena', () => {
   assert.ok(level.decos.some((d) => d.kind === 'sofa' && d.pee));
   assert.ok(level.decos.some((d) => d.kind === 'bed' && d.pee));
   assert.ok(level.decos.some((d) => d.kind === 'door' && d.pee));
+  assert.ok(level.decos.some((d) => d.kind === 'fridge' && d.pee));
+  assert.ok(level.decos.some((d) => d.kind === 'plant' && d.pee));
+  assert.ok(level.decos.some((d) => d.kind === 'shower' && d.pee));
+  const pees = level.decos.filter((d) => d.pee);
+  assert.ok(pees.length >= 10);
+  assert.ok(Math.max(...pees.map((d) => d.x)) - Math.min(...pees.map((d) => d.x)) > 4000);
   assert.ok(level.decos.some((d) => d.kind === 'toy' && d.kiss && d.clearKiss));
 });

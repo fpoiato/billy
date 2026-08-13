@@ -109,7 +109,7 @@ var Billy = Billy || {};
   }
 
   function deco(level, kind, x, y, extra) {
-    var pee = kind === 'sofa' || kind === 'bed' || kind === 'door' || kind === 'hydrant' || kind === 'shower';
+    var pee = kind === 'sofa' || kind === 'bed' || kind === 'door' || kind === 'hydrant' || kind === 'shower' || kind === 'fridge' || kind === 'plant';
     var d = { kind: kind, x: x, y: y, pee: pee, peed: false };
     if (extra) {
       for (var k in extra) d[k] = extra[k];
