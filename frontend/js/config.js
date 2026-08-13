@@ -65,6 +65,7 @@ Billy.CONFIG = {
 
   PEE_STILL: 0.65,
   PEE_TIME: 1.15,
+  KISS_RANGE: 48,
 
   CAMILA_W: 38,
   CAMILA_H: 72,
