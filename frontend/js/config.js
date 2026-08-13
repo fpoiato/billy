@@ -64,7 +64,7 @@ Billy.CONFIG = {
   VASE_W: 22,
   VASE_H: 32,
 
-  PEE_STILL: 0.65,
+  PEE_STILL: 0.4,
   PEE_TIME: 1.15,
   EAT_STILL: 0.5,
   EAT_TIME: 0.85,

@@ -52,6 +52,8 @@ var Billy = Billy || {};
     door: { ox: 0, w: 54 },
     hydrant: { ox: 0, w: 22 },
     shower: { ox: -4, w: 24 },
+    fridge: { ox: -6, w: 52 },
+    plant: { ox: -8, w: 44 },
   };
 
   function peeZone(d) {
@@ -68,7 +70,7 @@ var Billy = Billy || {};
       if (d.peed) continue;
       var z = peeZone(d);
       if (!z) continue;
-      if (cx >= z.x - 16 && cx <= z.x + z.w + 16) return d;
+      if (cx >= z.x - 36 && cx <= z.x + z.w + 36) return d;
     }
     return null;
   }

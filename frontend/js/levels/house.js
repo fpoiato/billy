@@ -47,7 +47,7 @@
   }
 
   function deco(level, kind, x, y, extra) {
-    var pee = kind === 'sofa' || kind === 'bed' || kind === 'door';
+    var pee = kind === 'sofa' || kind === 'bed' || kind === 'door' || kind === 'hydrant' || kind === 'shower' || kind === 'fridge' || kind === 'plant';
     var d = { kind: kind, x: x, y: y, pee: pee, peed: false };
     if (extra) {
       for (var k in extra) d[k] = extra[k];
@@ -66,6 +66,7 @@
     steaksLine(level, x0 + 800, C.GROUND - 124, 3, 36);
     deco(level, 'plant', x0 + 1100, C.GROUND);
     steaksLine(level, x0 + 1300, C.GROUND - 28, 3, 44);
+    deco(level, 'door', x0 + 1480, C.GROUND);
     return 1600;
   }
 
@@ -74,10 +75,13 @@
     rug(level, x0 + 80, 280);
     rug(level, x0 + 520, 320);
     rug(level, x0 + 1000, 300);
+    deco(level, 'plant', x0 + 40, C.GROUND);
+    deco(level, 'sofa', x0 + 380, C.GROUND);
     steaksLine(level, x0 + 120, C.GROUND - 90, 5, 50);
     steaksLine(level, x0 + 560, C.GROUND - 110, 5, 50);
     critter(level, 'cat', x0 + 700, C.GROUND - 40, x0 + 540, x0 + 820);
     steaksLine(level, x0 + 1040, C.GROUND - 90, 4, 50);
+    deco(level, 'plant', x0 + 1380, C.GROUND);
     return 1500;
   }
 
@@ -90,6 +94,7 @@
     steaksLine(level, x0 + 440, C.GROUND - 164, 3, 40);
     steaksLine(level, x0 + 700, C.GROUND - 104, 4, 40);
     deco(level, 'fridge', x0 + 40, C.GROUND);
+    deco(level, 'plant', x0 + 100, C.GROUND);
     level.vacuums.push({
       x: x0 + 900,
       y: C.GROUND - 14,
@@ -105,6 +110,8 @@
 
   function roomBroom(level, x0) {
     plat(level, x0, C.GROUND, 1500, 90);
+    deco(level, 'door', x0 + 40, C.GROUND);
+    deco(level, 'shower', x0 + 110, C.GROUND);
     plat(level, x0 + 200, C.GROUND - 100, 90, 16);
     plat(level, x0 + 420, C.GROUND - 160, 90, 16);
     plat(level, x0 + 640, C.GROUND - 100, 90, 16);
@@ -133,6 +140,7 @@
     steaksLine(level, x0 + 290, C.GROUND - 164, 2, 30);
     steaksLine(level, x0 + 450, C.GROUND - 114, 2, 30);
     critter(level, 'dog', x0 + 800, C.GROUND - 40, x0 + 700, x0 + 980);
+    deco(level, 'sofa', x0 + 560, C.GROUND);
     plat(level, x0 + 1100, C.GROUND - 110, 220, 16);
     steaksLine(level, x0 + 1130, C.GROUND - 144, 4, 44);
     deco(level, 'toy', x0 + 1400, C.GROUND);
@@ -153,6 +161,8 @@
     steaksLine(level, x0 + 870, C.GROUND - 124, 1, 40);
     critter(level, 'bird', x0 + 1200, C.GROUND - 40, x0 + 1050, x0 + 1400);
     steaksLine(level, x0 + 1100, C.GROUND - 28, 8, 44);
+    deco(level, 'plant', x0 + 40, C.GROUND);
+    deco(level, 'door', x0 + 1480, C.GROUND);
     return 1600;
   }
 
@@ -176,6 +186,7 @@
 
   function roomNightHall(level, x0) {
     plat(level, x0, C.GROUND, 1700, 90);
+    deco(level, 'sofa', x0 + 40, C.GROUND);
     plat(level, x0 + 200, C.GROUND - 100, 100, 16);
     plat(level, x0 + 500, C.GROUND - 150, 100, 16);
     plat(level, x0 + 800, C.GROUND - 100, 100, 16);
@@ -200,6 +211,7 @@
     plat(level, x0 + 500, C.GROUND - 90, 160, 16);
     steaksLine(level, x0 + 530, C.GROUND - 124, 3, 40);
     critter(level, 'bird', x0 + 900, C.GROUND - 40, x0 + 780, x0 + 1100);
+    deco(level, 'plant', x0 + 300, C.GROUND);
     deco(level, 'door', x0 + 1280, C.GROUND);
     return 1400;
   }
