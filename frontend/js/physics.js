@@ -14,12 +14,17 @@ var Billy = Billy || {};
   /**
    * Move um corpo AABB contra plataformas sólidas.
    * Resolve eixo X e depois Y (arcade clássico).
+   * Quem está em cima da plataforma não colide em X — senão o chão
+   * largo vira "parede" e o personagem é teletransportado.
    */
   function moveAndCollide(body, platforms, dt) {
+    var prevBottom = body.y + body.h;
+
     body.x += body.vx * dt;
     for (var i = 0; i < platforms.length; i++) {
       var p = platforms[i];
       if (!aabb(body, p)) continue;
+      if (prevBottom <= p.y + 3) continue;
       if (body.vx > 0) body.x = p.x - body.w;
       else if (body.vx < 0) body.x = p.x + p.w;
       body.vx = 0;

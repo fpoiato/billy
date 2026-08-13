@@ -216,6 +216,7 @@
     x += roomNightHall(level, x);
     x += roomNightToBoss(level, x);
     x += roomBoss(level, x);
+    level.platforms.push({ x: -400, y: C.GROUND, w: x + 800, h: 240, ground: true });
     level.width = x;
     return level;
   };
