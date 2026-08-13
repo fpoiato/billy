@@ -63,6 +63,7 @@
     B.steaksLine(level, x0 + 220, C.GROUND - 114, 2, 36);
     B.steaksLine(level, x0 + 520, C.GROUND - 164, 2, 36);
     B.steaksLine(level, x0 + 1400, C.GROUND - 28, 4, 44);
+    B.deco(level, 'bed', x0 + 1550, C.GROUND);
     return 1700;
   }
 
@@ -127,14 +128,15 @@
   }
 
   function ending(level, x0) {
-    var w = 1200;
+    var w = 960;
     B.plat(level, x0, C.GROUND, w, 90);
-    B.deco(level, 'sofa', x0 + 200, C.GROUND);
-    B.deco(level, 'plant', x0 + 420, C.GROUND);
-    B.deco(level, 'bed', x0 + 560, C.GROUND);
-    B.steaksLine(level, x0 + 80, C.GROUND - 28, 4, 44);
-    B.deco(level, 'toy', x0 + 900, C.GROUND);
-    level.goal = { x: x0 + 860, banner: 'Chegamos na casa da vovó!' };
+    B.deco(level, 'sofa', x0 + 80, C.GROUND);
+    B.deco(level, 'plant', x0 + 280, C.GROUND);
+    B.deco(level, 'toy', x0 + w - 160, C.GROUND);
+    level.bossArena = {
+      left: x0,
+      right: x0 + w,
+    };
     return w;
   }
 
@@ -144,6 +146,8 @@
       id: 'grandma',
       name: 'Casa da Vó',
       music: 'grandma',
+      bossKind: 'camila',
+      bossBanner: 'Camila quer um abraço!',
     });
     var x = 0;
     x += hall(level, x);

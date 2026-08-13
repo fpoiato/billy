@@ -229,7 +229,7 @@ var Billy = Billy || {};
     Billy.Enemies.updateSeagulls(level.seagulls, dt);
     Billy.Fx.update(state.fx, dt);
     collectSteaks(dt);
-    collideHazards();
+    if (!p.grabbed) collideHazards();
 
     if (level.checkpoint && !level.checkpoint.used && p.x + p.w > level.checkpoint.x) {
       level.checkpoint.used = true;
@@ -259,6 +259,8 @@ var Billy = Billy || {};
       if (ev && ev.stomped) {
         Billy.Fx.sparkleBurst(state.fx.sparkles, ev.x, ev.y, '#ffe14a');
         Billy.Fx.sparkleBurst(state.fx.sparkles, ev.x, ev.y, '#fff');
+      } else if (ev && ev.grab) {
+        Billy.Fx.sparkleBurst(state.fx.sparkles, ev.x, ev.y, '#ff5a7a');
       } else if (ev && ev.hit) {
         hurtPlayer(state.boss.monster);
       }
@@ -438,21 +440,29 @@ var Billy = Billy || {};
           bark: m.mode === 'bark',
           dir: -1,
         });
+      } else if (m.kind === 'camila') {
+        D.camila(ctx, worldX(m.x + m.w / 2), m.y + m.h, state.t, {
+          dir: m.dir,
+          grab: m.mode === 'grab',
+          tired: m.mode === 'tired',
+          happy: m.mode === 'happy' || (state.boss && state.boss.done),
+        });
       } else {
         D.monster(ctx, worldX(m.x + m.w / 2), m.y + m.h / 2, state.t);
       }
     }
 
     var pl = state.player;
-    D.shadow(ctx, worldX(pl.x + pl.w / 2), C.GROUND + 4, !pl.onGround);
+    D.shadow(ctx, worldX(pl.x + pl.w / 2), C.GROUND + 4, !pl.onGround && !pl.grabbed);
     D.billy(ctx, worldX(pl.x + pl.w / 2), pl.y + pl.h, {
       t: state.t,
       facing: pl.facing,
-      run: Math.abs(pl.vx) > 40 && pl.onGround && !pl.peeing,
-      air: !pl.onGround,
-      hurt: pl.invuln > 0,
-      scared: night && !(state.boss && state.boss.done),
-      pee: pl.peeing,
+      run: Math.abs(pl.vx) > 40 && pl.onGround && !pl.peeing && !pl.grabbed,
+      air: !pl.onGround && !pl.grabbed,
+      hurt: pl.invuln > 0 && !pl.grabbed,
+      scared: (night && !(state.boss && state.boss.done)) || pl.grabbed,
+      pee: pl.peeing && !pl.grabbed,
+      bulge: pl.bulge || 0,
     });
 
     if (state.intro > 0 && theme === 'house') {

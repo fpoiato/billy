@@ -59,12 +59,14 @@ var Billy = Billy || {};
     var air = !!opt.air;
     var hurt = !!opt.hurt;
     var scared = !!opt.scared;
-    var blink = hurt && Math.floor(t * 20) % 2 === 0;
+    var bulge = opt.bulge || 0;
+    var blink = hurt && !bulge && Math.floor(t * 20) % 2 === 0;
     if (blink) return;
 
     ctx.save();
     ctx.translate(x, y);
     ctx.scale(facing, 1);
+    if (bulge) ctx.scale(1 - bulge * 0.22, 1 + bulge * 0.2);
 
     var bob = air ? -3 : Math.sin(t * (run ? 16 : 5)) * (run ? 1.6 : 0.8);
     ctx.translate(0, bob);
@@ -151,21 +153,23 @@ var Billy = Billy || {};
     ctx.fillText('Billy', 14 * facing, -13);
     ctx.restore();
 
-    var eyeY = scared ? -29 : -30;
+    var eyeY = scared || bulge ? -29 : -30;
+    var erx = 3.6 + bulge * 6.5;
+    var ery = 4.2 + bulge * 7.5;
     ctx.fillStyle = '#fff';
     ctx.beginPath();
-    ctx.ellipse(20, eyeY, 3.6, 4.2, 0, 0, Math.PI * 2);
+    ctx.ellipse(20, eyeY, erx, ery, 0, 0, Math.PI * 2);
     ctx.fill();
     ctx.strokeStyle = '#3a2414';
     ctx.lineWidth = 1.5;
     ctx.stroke();
     ctx.fillStyle = '#2a1810';
     ctx.beginPath();
-    ctx.arc(21, eyeY + (scared ? 0.8 : 0.2), scared ? 2.1 : 1.7, 0, Math.PI * 2);
+    ctx.arc(21, eyeY + (scared ? 0.8 : 0.2), bulge ? 1.1 : scared ? 2.1 : 1.7, 0, Math.PI * 2);
     ctx.fill();
     ctx.fillStyle = '#fff';
     ctx.beginPath();
-    ctx.arc(21.8, eyeY - 1, 0.8, 0, Math.PI * 2);
+    ctx.arc(21.8, eyeY - 1 - bulge, bulge ? 0.5 : 0.8, 0, Math.PI * 2);
     ctx.fill();
 
     ctx.beginPath();
@@ -176,13 +180,17 @@ var Billy = Billy || {};
     ctx.lineWidth = 1.8;
     ctx.lineCap = 'round';
     ctx.beginPath();
-    if (scared) {
+    if (bulge) {
+      ctx.ellipse(26, -20, 3.2 + bulge * 2, 3.4 + bulge * 2.2, 0, 0, Math.PI * 2);
+      ctx.stroke();
+    } else if (scared) {
       ctx.arc(26, -21, 3.2, 0.2, Math.PI - 0.2);
+      ctx.stroke();
     } else {
       ctx.arc(26, -22, 3.4, 0.15, Math.PI - 0.15, true);
+      ctx.stroke();
     }
-    ctx.stroke();
-    if (!scared) {
+    if (!scared && !bulge) {
       ctx.beginPath();
       ctx.ellipse(27, -20, 2.2, 2.6, 0.2, 0, Math.PI);
       paint(ctx, '#ff7a9a', '#c45a70', 1);
@@ -850,6 +858,90 @@ var Billy = Billy || {};
     ctx.restore();
   }
 
+  function drawCamila(ctx, x, y, t, opt) {
+    opt = opt || {};
+    var dir = opt.dir == null ? -1 : opt.dir;
+    var grab = !!opt.grab;
+    var tired = !!opt.tired;
+    var happy = !!opt.happy;
+    ctx.save();
+    ctx.translate(x, y + (tired ? 8 : Math.sin(t * (grab ? 18 : 12)) * (grab ? 2 : 1.4)));
+    ctx.scale(dir, 1);
+
+    ctx.strokeStyle = '#f3d7b0';
+    ctx.lineWidth = 6;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(-10, -18);
+    ctx.lineTo(-10, -4);
+    ctx.moveTo(10, -18);
+    ctx.lineTo(10, -4);
+    ctx.stroke();
+
+    var armY = grab ? -36 : tired ? -28 : -40;
+    var armX = grab ? 16 : tired ? 8 : 28;
+    ctx.strokeStyle = '#f3d7b0';
+    ctx.lineWidth = 5;
+    ctx.beginPath();
+    ctx.moveTo(-8, -48);
+    ctx.quadraticCurveTo(-armX, armY, grab ? -6 : -armX, grab ? -22 : -32);
+    ctx.moveTo(8, -48);
+    ctx.quadraticCurveTo(armX, armY, grab ? 6 : armX, grab ? -22 : -32);
+    ctx.stroke();
+
+    roundRect(ctx, -16, -58, 32, 36, 10);
+    paint(ctx, '#ff6ba8', '#c44578', 3);
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(-8, -50, 16, 8);
+
+    ctx.beginPath();
+    ctx.arc(0, -72, 14, 0, Math.PI * 2);
+    paint(ctx, '#f3d7b0', '#b08958', 3);
+    ctx.beginPath();
+    ctx.ellipse(-2, -82, 16, 10, -0.2, 0, Math.PI * 2);
+    paint(ctx, '#4a2a18', '#2a1810', 2);
+    ctx.beginPath();
+    ctx.ellipse(12, -78, 6, 10, 0.5, 0, Math.PI * 2);
+    paint(ctx, '#4a2a18', '#2a1810', 2);
+
+    ctx.fillStyle = '#fff';
+    ctx.beginPath();
+    ctx.ellipse(-5, -72, 3.2, 3.8, 0, 0, Math.PI * 2);
+    ctx.ellipse(5, -72, 3.2, 3.8, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#2a1810';
+    ctx.beginPath();
+    ctx.arc(-4, -72, 1.6, 0, Math.PI * 2);
+    ctx.arc(6, -72, 1.6, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = '#c45a70';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    if (grab) ctx.arc(0, -66, 5, 0.15, Math.PI - 0.15);
+    else ctx.arc(0, -65, 4.5, 0.2, Math.PI - 0.2, true);
+    ctx.stroke();
+
+    ctx.fillStyle = '#fff';
+    ctx.strokeStyle = '#c44578';
+    ctx.lineWidth = 2;
+    ctx.font = 'bold 8px Trebuchet MS, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.save();
+    ctx.scale(dir, 1);
+    ctx.strokeText('Camila', 0, -42);
+    ctx.fillText('Camila', 0, -42);
+    ctx.restore();
+
+    if (grab) {
+      ctx.fillStyle = '#ff5a7a';
+      ctx.font = 'bold 12px Trebuchet MS, sans-serif';
+      ctx.fillText('♥', -22, -88);
+      ctx.fillText('♥', 18, -90);
+    }
+    ctx.restore();
+  }
+
   function drawShadow(ctx, x, y, air) {
     ctx.save();
     ctx.fillStyle = 'rgba(40, 22, 10, 0.32)';
@@ -900,5 +992,6 @@ var Billy = Billy || {};
     vase: drawVase,
     gate: drawGate,
     bigDog: drawBigDog,
+    camila: drawCamila,
   };
 })();

@@ -37,7 +37,7 @@ var Billy = Billy || {};
       playable: true,
       isFinale: true,
       clearTitle: 'Você venceu!',
-      clearLine: 'Billy e o Patinho estão juntos na casa da vovó.',
+      clearLine: 'Camila apertou, mas Billy achou o Patinho na casa da vovó.',
     },
   ];
 
