@@ -68,10 +68,10 @@ test('Mayra catches Billy and bathes him, then gets tired', () => {
   assert.equal(boss.monster.mode, 'tired');
 });
 
-test('stomping Mayra three times wins without clearing the phase', () => {
+test('stomping Mayra three times wins the fight', () => {
   const arena = { left: 0, right: 960 };
   const boss = Billy.Boss.create(arena, 'mayra');
-  assert.equal(boss.clearsPhase, false);
+  assert.notEqual(boss.clearsPhase, false);
   const player = Billy.Player.create(boss.monster.x, boss.monster.y - C.PLAYER_H + 8);
   player.vy = 400;
   player.invuln = 0;
@@ -86,7 +86,6 @@ test('stomping Mayra three times wins without clearing the phase', () => {
     assert.equal(ev && ev.stomped, true, 'stomp ' + (n + 1));
   }
   assert.equal(boss.done, true);
-  assert.equal(boss.clearsPhase, false);
 });
 
 test('bosses spawn in the center of the arena, not at the gate', () => {

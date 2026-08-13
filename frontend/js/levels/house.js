@@ -1,5 +1,6 @@
 /**
- * Fase 1 — Casa.
+ * Fase 1 — Casa (de dia). Termina com a Mayra querendo dar banho.
+ * A noite é a fase seguinte: Billy.Levels.createNight().
  * Cada room*() desenha um trecho e devolve a largura.
  * Para alongar a fase, chame mais rooms no createHouse().
  * Fases novas: copie este arquivo (street.js, beach.js, grandma.js).
@@ -175,13 +176,28 @@
     steaksLine(level, x0 + 680, C.GROUND - 124, 2, 36);
     deco(level, 'door', x0 + 36, C.GROUND);
     deco(level, 'shower', x0 + w / 2 - 12, C.GROUND);
-    deco(level, 'plant', x0 + w - 90, C.GROUND);
-    level.mayraArena = {
+    deco(level, 'plant', x0 + w - 220, C.GROUND);
+    deco(level, 'toy', x0 + w - 120, C.GROUND, { kiss: true, clearKiss: true });
+    level.bossArena = {
       left: x0,
       right: x0 + w,
     };
-    level.mayraBanner = 'Mayra quer dar banho!';
     return w;
+  }
+
+  function roomNightStart(level, x0) {
+    plat(level, x0, C.GROUND, 1500, 90);
+    deco(level, 'door', x0 + 40, C.GROUND);
+    deco(level, 'sofa', x0 + 180, C.GROUND);
+    plat(level, x0 + 190, C.GROUND - 36, 100, 12);
+    steaksLine(level, x0 + 210, C.GROUND - 70, 3, 40);
+    steaksLine(level, x0 + 520, C.GROUND - 28, 4, 48);
+    plat(level, x0 + 780, C.GROUND - 90, 120, 16);
+    steaksLine(level, x0 + 800, C.GROUND - 124, 3, 36);
+    deco(level, 'plant', x0 + 1100, C.GROUND);
+    steaksLine(level, x0 + 1300, C.GROUND - 28, 3, 44);
+    deco(level, 'fridge', x0 + 1420, C.GROUND);
+    return 1500;
   }
 
   function roomNightHall(level, x0) {
@@ -229,13 +245,13 @@
     return w;
   }
 
-  Billy.Levels = Billy.Levels || {};
-  Billy.Levels.createHouse = function () {
-    var level = {
-      id: 'house',
-      name: 'Casa',
+  function blankHouse(opt) {
+    opt = opt || {};
+    return {
+      id: opt.id,
+      name: opt.name,
       theme: 'house',
-      music: 'day',
+      music: opt.music || 'day',
       width: 0,
       platforms: [],
       rugs: [],
@@ -248,13 +264,25 @@
       spawn: { x: C.SPAWN_X || 300, y: C.GROUND - C.PLAYER_H - 2 },
       checkpoint: null,
       dayEndX: 0,
-      night: false,
+      night: !!opt.night,
       mayraArena: null,
-      mayraBanner: 'Mayra quer dar banho!',
-      bossKind: 'bed',
-      bossBanner: 'Monstros debaixo da cama!',
-      intro: 2.8,
+      bossKind: opt.bossKind || null,
+      bossBanner: opt.bossBanner || '',
+      intro: opt.intro != null ? opt.intro : 1.2,
+      introBanner: opt.introBanner || '',
     };
+  }
+
+  Billy.Levels = Billy.Levels || {};
+  Billy.Levels.createHouse = function () {
+    var level = blankHouse({
+      id: 'house',
+      name: 'Casa',
+      music: 'day',
+      bossKind: 'mayra',
+      bossBanner: 'Mayra quer dar banho!',
+      intro: 2.8,
+    });
 
     var x = 0;
     x += roomLiving(level, x);
@@ -264,8 +292,27 @@
     level.checkpoint = { x: x + 80, y: C.GROUND, used: false };
     x += roomPlay(level, x);
     x += roomGallery(level, x);
-    level.dayEndX = x;
     x += roomMayra(level, x);
+    level.platforms.push({ x: -400, y: C.GROUND, w: x + 800, h: 240, ground: true });
+    level.width = x;
+    return level;
+  };
+
+  Billy.Levels.createNight = function () {
+    var level = blankHouse({
+      id: 'night',
+      name: 'À noite',
+      music: 'night',
+      night: true,
+      bossKind: 'bed',
+      bossBanner: 'Monstros debaixo da cama!',
+      intro: 2.4,
+      introBanner: 'Sozinho em casa à noite...',
+    });
+
+    var x = 0;
+    x += roomNightStart(level, x);
+    level.checkpoint = { x: x + 80, y: C.GROUND, used: false };
     x += roomNightHall(level, x);
     x += roomNightToBoss(level, x);
     x += roomBoss(level, x);

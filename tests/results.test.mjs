@@ -16,15 +16,19 @@ const Billy = loadBilly([
   'results.js',
 ]);
 
-test('house is followed by the walk with dad', () => {
+test('house is followed by the night at home', () => {
   const house = Billy.Campaign.get('house');
   const next = Billy.Campaign.next('house');
   assert.equal(house.playable, true);
-  assert.equal(next.id, 'papai');
+  assert.equal(next.id, 'night');
   assert.equal(next.playable, true);
+  assert.equal(Billy.Campaign.next('night').id, 'papai');
+  assert.equal(Billy.Campaign.createLevel('night').id, 'night');
   assert.equal(Billy.Campaign.createLevel('papai').id, 'papai');
   const level = Billy.Campaign.createLevel('house');
   assert.equal(level.id, 'house');
+  assert.equal(level.bossKind, 'mayra');
+  assert.ok(!level.night);
 });
 
 test('results count steaks then become ready', () => {

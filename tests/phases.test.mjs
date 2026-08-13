@@ -17,13 +17,15 @@ const files = [
 ];
 const Billy = loadBilly(files);
 
-test('all five phases are playable in order', () => {
+test('all six phases are playable in order', () => {
   assert.equal(Billy.Campaign.get('house').playable, true);
-  assert.equal(Billy.Campaign.next('house').id, 'papai');
+  assert.equal(Billy.Campaign.next('house').id, 'night');
+  assert.equal(Billy.Campaign.next('night').id, 'papai');
   assert.equal(Billy.Campaign.next('papai').id, 'street');
   assert.equal(Billy.Campaign.next('street').id, 'beach');
   assert.equal(Billy.Campaign.next('beach').id, 'grandma');
   assert.equal(Billy.Campaign.next('grandma'), null);
+  assert.equal(Billy.Campaign.createLevel('night').id, 'night');
   assert.equal(Billy.Campaign.createLevel('papai').id, 'papai');
   assert.equal(Billy.Campaign.createLevel('street').id, 'street');
   assert.equal(Billy.Campaign.createLevel('beach').id, 'beach');

@@ -39,7 +39,7 @@ var Billy = Billy || {};
       showTimer: true,
       intro: level.intro != null ? level.intro : 1.2,
       nightIntro: 0,
-      night: false,
+      night: !!level.night,
       banner: '',
       bannerT: 0,
       duckX: (level.spawn && level.spawn.x || 80) + 80,
