@@ -210,11 +210,12 @@ var Billy = Billy || {};
     ctx.restore();
   }
 
-  function drawDuck(ctx, x, y, t, scale) {
+  function drawDuck(ctx, x, y, t, scale, facing) {
     scale = scale || 1;
+    facing = facing == null ? 1 : facing;
     ctx.save();
     ctx.translate(x, y + Math.sin(t * 6) * 2);
-    ctx.scale(scale, scale);
+    ctx.scale(facing * scale, scale);
     ctx.beginPath();
     ctx.ellipse(0, 0, 16, 12, 0, 0, Math.PI * 2);
     paint(ctx, '#ffe14a', '#c79212', 3);
@@ -231,6 +232,37 @@ var Billy = Billy || {};
     ctx.beginPath();
     ctx.ellipse(-2, 2, 7, 5, -0.4, 0, Math.PI * 2);
     paint(ctx, '#ffd24a', '#c79212', 2);
+    ctx.restore();
+  }
+
+  function drawLoveHeart(ctx, x, y, s, a) {
+    s = s || 1;
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.scale(s, s);
+    ctx.globalAlpha = a == null ? 1 : Math.max(0, a);
+    ctx.beginPath();
+    ctx.moveTo(0, 6);
+    ctx.bezierCurveTo(-12, -2, -8, -12, 0, -6);
+    ctx.bezierCurveTo(8, -12, 12, -2, 0, 6);
+    paint(ctx, '#ff5a7a', '#a31d3a', 2);
+    ctx.restore();
+  }
+
+  function drawCensored(ctx, x, y, w) {
+    w = w || 120;
+    var h = 28;
+    ctx.save();
+    ctx.fillStyle = '#111';
+    ctx.fillRect(x - w / 2, y - h / 2, w, h);
+    ctx.strokeStyle = '#fff';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(x - w / 2, y - h / 2, w, h);
+    ctx.fillStyle = '#fff';
+    ctx.font = 'bold 13px Trebuchet MS, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('CENSURADO', x, y + 1);
     ctx.restore();
   }
 
@@ -956,6 +988,8 @@ var Billy = Billy || {};
     paint: paint,
     billy: drawBilly,
     duck: drawDuck,
+    loveHeart: drawLoveHeart,
+    censored: drawCensored,
     steak: drawSteak,
     heart: drawHeart,
     vacuum: drawVacuum,

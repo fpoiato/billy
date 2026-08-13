@@ -118,7 +118,7 @@
     B.steaksLine(level, x0 + 80, C.GROUND - 28, 6, 48);
     B.deco(level, 'palm', x0 + 500, C.GROUND);
     B.deco(level, 'door', x0 + 700, C.GROUND);
-    B.deco(level, 'toy', x0 + 1100, C.GROUND);
+    B.deco(level, 'toy', x0 + 1100, C.GROUND, { kiss: true });
     level.goal = { x: x0 + 1080, banner: 'O Patinho Amarelo!' };
     return w;
   }

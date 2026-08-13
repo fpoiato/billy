@@ -229,7 +229,7 @@ var Billy = Billy || {};
     Billy.Enemies.updateSeagulls(level.seagulls, dt);
     Billy.Fx.update(state.fx, dt);
     collectSteaks(dt);
-    if (!p.grabbed) collideHazards();
+    if (!p.grabbed && !p.kissing) collideHazards();
 
     if (level.checkpoint && !level.checkpoint.used && p.x + p.w > level.checkpoint.x) {
       level.checkpoint.used = true;
@@ -266,7 +266,8 @@ var Billy = Billy || {};
       }
     } else if (state.boss && state.boss.done) {
       state.clearT += dt;
-      if (state.clearT > 1.4 && state.screen === 'playing') {
+      var bossWait = p.kissing ? 3.4 : 1.4;
+      if (state.clearT > bossWait && state.screen === 'playing') {
         beginResults();
       }
     }
@@ -280,7 +281,7 @@ var Billy = Billy || {};
     }
     if (state.goalHit && state.screen === 'playing') {
       state.clearT += dt;
-      if (state.clearT > 1.6) beginResults();
+      if (state.clearT > (p.kissing ? 3.4 : 1.6)) beginResults();
     }
 
     if (state.boss && arena) {
@@ -331,7 +332,10 @@ var Billy = Billy || {};
     if (d.kind === 'plant') D.plant(ctx, x, d.y);
     if (d.kind === 'door') D.door(ctx, x, d.y);
     if (d.kind === 'bed') D.bed(ctx, x, d.y);
-    if (d.kind === 'toy') D.duck(ctx, x, d.y - 18, state.t, 0.7);
+    if (d.kind === 'toy') {
+      if (state.player.kissing && state.player.kissDuck === d) return;
+      D.duck(ctx, x, d.y - 18, state.t, 0.7);
+    }
     if (d.kind === 'palm') D.palm(ctx, x, d.y);
     if (d.kind === 'castle') D.castle(ctx, x, d.y);
     if (d.kind === 'gate') D.gate(ctx, x, d.y);
@@ -453,17 +457,33 @@ var Billy = Billy || {};
     }
 
     var pl = state.player;
+    var kiss = pl.kissing && pl.kissDuck;
+    var hearts = pl.kissHearts || [];
+    for (var kh = 0; kh < hearts.length; kh++) {
+      D.loveHeart(ctx, worldX(hearts[kh].x), hearts[kh].y, hearts[kh].s, hearts[kh].life);
+    }
+
+    var billyX = pl.x + pl.w / 2;
+    var midX = billyX;
+    if (kiss) {
+      midX = (billyX + pl.kissDuck.x) / 2;
+      billyX = midX - 16 * pl.facing;
+    }
     D.shadow(ctx, worldX(pl.x + pl.w / 2), C.GROUND + 4, !pl.onGround && !pl.grabbed);
-    D.billy(ctx, worldX(pl.x + pl.w / 2), pl.y + pl.h, {
+    D.billy(ctx, worldX(billyX), pl.y + pl.h, {
       t: state.t,
       facing: pl.facing,
-      run: Math.abs(pl.vx) > 40 && pl.onGround && !pl.peeing && !pl.grabbed,
+      run: Math.abs(pl.vx) > 40 && pl.onGround && !pl.peeing && !pl.grabbed && !kiss,
       air: !pl.onGround && !pl.grabbed,
-      hurt: pl.invuln > 0 && !pl.grabbed,
+      hurt: pl.invuln > 0 && !pl.grabbed && !kiss,
       scared: (night && !(state.boss && state.boss.done)) || pl.grabbed,
       pee: pl.peeing && !pl.grabbed,
       bulge: pl.bulge || 0,
     });
+    if (kiss) {
+      D.duck(ctx, worldX(midX + 16 * pl.facing), C.GROUND - 16, state.t, 1, -pl.facing);
+      D.censored(ctx, worldX(midX), C.GROUND - 38, 128);
+    }
 
     if (state.intro > 0 && theme === 'house') {
       D.duck(ctx, worldX(state.duckX), C.GROUND - 18, state.t, 1);

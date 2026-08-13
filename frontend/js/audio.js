@@ -175,6 +175,11 @@ var Billy = Billy || {};
       beep(520, 0.12, 'square', 0.07, 880);
       setTimeout(function () { beep(700, 0.18, 'square', 0.06, 1100); }, 80);
     },
+    kiss: function () {
+      beep(659, 0.1, 'sine', 0.06);
+      setTimeout(function () { beep(784, 0.12, 'sine', 0.07); }, 90);
+      setTimeout(function () { beep(988, 0.16, 'sine', 0.06); }, 180);
+    },
     pee: function () { noise(0.2, 0.05); beep(160, 0.22, 'sine', 0.035, 80); },
     music: startMusic,
     stopMusic: stopMusic,

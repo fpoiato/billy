@@ -26,6 +26,10 @@ var Billy = Billy || {};
       peeCooldown: 0,
       grabbed: false,
       bulge: 0,
+      kissing: false,
+      kissDuck: null,
+      kissHearts: [],
+      kissSpawn: 0,
     };
   }
 
@@ -87,6 +91,65 @@ var Billy = Billy || {};
     }
   }
 
+  function nearKissDuck(p, level) {
+    var decos = level.decos || [];
+    var cx = p.x + p.w / 2;
+    for (var i = 0; i < decos.length; i++) {
+      var d = decos[i];
+      if (d.kind !== 'toy' || !d.kiss) continue;
+      if (Math.abs(cx - d.x) <= C.KISS_RANGE) return d;
+    }
+    return null;
+  }
+
+  function spawnKissHeart(p, duck) {
+    var mid = (p.x + p.w / 2 + duck.x) / 2;
+    p.kissHearts.push({
+      x: mid + (Math.random() - 0.5) * 28,
+      y: C.GROUND - 10 - Math.random() * 8,
+      vx: (Math.random() - 0.5) * 18,
+      vy: -40 - Math.random() * 50,
+      life: 1,
+      s: 0.6 + Math.random() * 0.5,
+    });
+    if (p.kissHearts.length > 18) p.kissHearts.shift();
+  }
+
+  function updateKiss(p, input, level, dt) {
+    if (!p.kissHearts) p.kissHearts = [];
+    for (var i = p.kissHearts.length - 1; i >= 0; i--) {
+      var h = p.kissHearts[i];
+      h.x += h.vx * dt;
+      h.y += h.vy * dt;
+      h.life -= dt * 0.7;
+      if (h.life <= 0) p.kissHearts.splice(i, 1);
+    }
+
+    if (p.grabbed || p.peeing) {
+      p.kissing = false;
+      p.kissDuck = null;
+      return;
+    }
+
+    var duck = nearKissDuck(p, level);
+    var near = duck && p.onGround && Math.abs(p.vx) < 80 && !input.jumpPressed;
+    if (near) {
+      if (!p.kissing && Billy.Audio && Billy.Audio.kiss) Billy.Audio.kiss();
+      p.kissing = true;
+      p.kissDuck = duck;
+      p.facing = duck.x >= p.x + p.w / 2 ? 1 : -1;
+      p.kissSpawn -= dt;
+      if (p.kissSpawn <= 0) {
+        spawnKissHeart(p, duck);
+        p.kissSpawn = 0.11;
+      }
+    } else {
+      p.kissing = false;
+      p.kissDuck = null;
+      p.kissSpawn = 0;
+    }
+  }
+
   function update(p, input, level, dt) {
     p.animT += dt;
     if (p.invuln > 0) p.invuln -= dt;
@@ -94,11 +157,13 @@ var Billy = Billy || {};
     if (p.grabbed) {
       p.vx = 0;
       p.vy = 0;
+      p.kissing = false;
       return;
     }
 
     updatePee(p, input, level, dt);
-    var dir = p.peeing ? 0 : input.dir;
+    updateKiss(p, input, level, dt);
+    var dir = p.peeing || p.kissing ? 0 : input.dir;
 
     if (p.onGround) p.coyote = C.COYOTE;
     else p.coyote -= dt;
@@ -191,7 +256,9 @@ var Billy = Billy || {};
     create: create,
     update: update,
     updatePee: updatePee,
+    updateKiss: updateKiss,
     nearPeeSpot: nearPeeSpot,
+    nearKissDuck: nearKissDuck,
     peeZone: peeZone,
     hit: hit,
     addSteaks: addSteaks,

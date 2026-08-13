@@ -48,6 +48,7 @@ test('beach has crabs, waves, seagulls and a reunion goal', () => {
   assert.ok(level.seagulls.length >= 1);
   assert.ok(level.checkpoint);
   assert.ok(level.goal.x > level.checkpoint.x);
+  assert.ok(level.decos.some((d) => d.kind === 'toy' && d.kiss));
   assert.equal(level.bossArena, null);
 });
 

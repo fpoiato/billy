@@ -132,7 +132,7 @@
     B.plat(level, x0, C.GROUND, w, 90);
     B.deco(level, 'sofa', x0 + 80, C.GROUND);
     B.deco(level, 'plant', x0 + 280, C.GROUND);
-    B.deco(level, 'toy', x0 + w - 160, C.GROUND);
+    B.deco(level, 'toy', x0 + w - 160, C.GROUND, { kiss: true });
     level.bossArena = {
       left: x0,
       right: x0 + w,
