@@ -17,11 +17,17 @@ var Billy = Billy || {};
     el.hidden = !(on && Billy.Input.usesTouch());
   }
 
-  function freshPlay() {
-    var level = Billy.Levels.createHouse();
+  function startPhase(phaseId, carry) {
+    var level = Billy.Campaign.createLevel(phaseId);
+    if (!level) return false;
     var player = Billy.Player.create(level.spawn.x, level.spawn.y);
-    return {
+    if (carry) {
+      player.lives = carry.lives;
+      player.steaks = carry.steaks;
+    }
+    state = {
       screen: 'playing',
+      phaseId: level.id,
       level: level,
       player: player,
       cam: Billy.Camera.create(),
@@ -30,7 +36,7 @@ var Billy = Billy || {};
       t: 0,
       elapsed: 0,
       showTimer: true,
-      intro: 2.8,
+      intro: phaseId === 'house' ? 2.8 : 1.2,
       nightIntro: 0,
       night: false,
       banner: '',
@@ -38,7 +44,12 @@ var Billy = Billy || {};
       duckX: 140,
       clearT: 0,
       spawn: { x: level.spawn.x, y: level.spawn.y },
+      results: null,
+      coming: null,
     };
+    Billy.Audio.music('day');
+    setTouch(true);
+    return true;
   }
 
   function goMenu() {
@@ -49,6 +60,8 @@ var Billy = Billy || {};
       player: { lives: C.START_LIVES, steaks: 0 },
       showTimer: false,
       elapsed: 0,
+      coming: null,
+      results: null,
     };
     Billy.Audio.stopMusic();
     setTouch(false);
@@ -57,10 +70,40 @@ var Billy = Billy || {};
   function startGame() {
     Billy.Audio.unlock();
     Billy.Audio.markStart();
-    state = freshPlay();
-    Billy.Audio.music('day');
-    setTouch(true);
+    startPhase('house');
     Billy.Display.requestFullscreen();
+  }
+
+  function beginResults() {
+    state.screen = 'results';
+    state.results = Billy.Results.create({
+      phaseId: state.level.id,
+      steaks: state.player.steaks,
+      lives: state.player.lives,
+      elapsed: state.elapsed,
+    });
+    Billy.Audio.stopMusic();
+    setTouch(false);
+  }
+
+  function continueFromResults() {
+    if (!state.results) return;
+    Billy.Results.beginWipe(state.results);
+  }
+
+  function finishResults() {
+    var r = state.results;
+    var next = Billy.Campaign.next(r.phaseId);
+    var carry = { lives: r.lives, steaks: r.steaks };
+    if (next && next.playable && startPhase(next.id, carry)) return;
+    if (next) {
+      state.screen = 'coming';
+      state.coming = { phase: next, t: 0, steaks: r.steaks, lives: r.lives };
+      state.results = null;
+      setTouch(false);
+      return;
+    }
+    goMenu();
   }
 
   function respawn() {
@@ -194,10 +237,8 @@ var Billy = Billy || {};
       }
     } else if (state.boss && state.boss.done) {
       state.clearT += dt;
-      if (state.clearT > 1.4) {
-        state.screen = 'clear';
-        Billy.Audio.stopMusic();
-        setTouch(false);
+      if (state.clearT > 1.4 && state.screen === 'playing') {
+        beginResults();
       }
     }
 
@@ -214,7 +255,13 @@ var Billy = Billy || {};
   function update(dt, input) {
     state.t += dt;
     buttons = [];
-    if (state.screen === 'menu' || state.screen === 'gameover' || state.screen === 'clear') return;
+    if (state.screen === 'coming' && state.coming) state.coming.t += dt;
+    if (state.screen === 'menu' || state.screen === 'gameover' || state.screen === 'coming') return;
+    if (state.screen === 'results') {
+      Billy.Results.update(state.results, dt);
+      if (state.results.finished) finishResults();
+      return;
+    }
     if (state.nightIntro > 0) {
       state.nightIntro -= dt;
       return;
@@ -376,33 +423,27 @@ var Billy = Billy || {};
     ctx.fillText(text, C.WIDTH / 2, 258);
   }
 
-  function drawEnd(kind) {
-    D.houseSky(ctx, { x: 0 }, kind === 'gameover', 1, C.WIDTH, C.HEIGHT, C.GROUND);
-    D.floor(ctx, { x: 0 }, kind === 'gameover', C.GROUND, C.WIDTH, C.HEIGHT);
+  function drawEnd() {
+    D.houseSky(ctx, { x: 0 }, true, 1, C.WIDTH, C.HEIGHT, C.GROUND);
+    D.floor(ctx, { x: 0 }, true, C.GROUND, C.WIDTH, C.HEIGHT);
     D.billy(ctx, C.WIDTH / 2 - 20, C.GROUND, {
       t: state.t,
       facing: 1,
-      scared: kind === 'gameover',
-      run: kind === 'clear',
+      scared: true,
     });
-    if (kind === 'clear') D.duck(ctx, C.WIDTH / 2 + 50, C.GROUND - 4, state.t, 0.85);
     ctx.textAlign = 'center';
     ctx.fillStyle = '#fff';
     ctx.strokeStyle = '#1a3a6b';
     ctx.lineWidth = 7;
     ctx.font = 'bold 40px Trebuchet MS, sans-serif';
-    var title = kind === 'clear' ? 'Fase 1 concluída!' : 'Oh não!';
-    var sub = kind === 'clear'
-      ? 'Billy foi corajoso. O Patinho ainda está perdido...'
-      : 'Billy precisa descansar um pouquinho.';
-    ctx.strokeText(title, C.WIDTH / 2, 120);
-    ctx.fillText(title, C.WIDTH / 2, 120);
+    ctx.strokeText('Oh não!', C.WIDTH / 2, 120);
+    ctx.fillText('Oh não!', C.WIDTH / 2, 120);
     ctx.font = '18px Trebuchet MS, sans-serif';
     ctx.lineWidth = 4;
-    ctx.strokeText(sub, C.WIDTH / 2, 168);
-    ctx.fillText(sub, C.WIDTH / 2, 168);
-    btn(C.WIDTH / 2 - 100, 340, 200, 54, kind === 'clear' ? 'Menu' : 'Tentar de novo');
-    if (kind === 'gameover') btn(C.WIDTH / 2 - 100, 410, 200, 48, 'Menu');
+    ctx.strokeText('Billy precisa descansar um pouquinho.', C.WIDTH / 2, 168);
+    ctx.fillText('Billy precisa descansar um pouquinho.', C.WIDTH / 2, 168);
+    btn(C.WIDTH / 2 - 100, 340, 200, 54, 'Tentar de novo');
+    btn(C.WIDTH / 2 - 100, 410, 200, 48, 'Menu');
   }
 
   function render() {
@@ -415,11 +456,19 @@ var Billy = Billy || {};
       return;
     }
     if (state.screen === 'gameover') {
-      drawEnd('gameover');
+      drawEnd();
       return;
     }
-    if (state.screen === 'clear') {
-      drawEnd('clear');
+    if (state.screen === 'results') {
+      Billy.Results.draw(ctx, state.results);
+      if (state.results.ready && state.results.wipe <= 0) {
+        btn(C.WIDTH / 2 - 110, 390, 220, 56, 'Continuar');
+      }
+      return;
+    }
+    if (state.screen === 'coming') {
+      Billy.Results.drawComing(ctx, state.coming);
+      btn(C.WIDTH / 2 - 100, 360, 200, 54, 'Menu');
       return;
     }
     drawWorld();
@@ -459,6 +508,15 @@ var Billy = Billy || {};
 
   function onPointer(e) {
     var pos = canvasPos(e);
+    if (state.screen === 'results' && state.results && state.results.wipe <= 0) {
+      var hit = hitBtn(pos.x, pos.y);
+      if (state.results.ready) {
+        if (!hit || hit.label === 'Continuar') continueFromResults();
+        return;
+      }
+      Billy.Results.skip(state.results);
+      return;
+    }
     var b = hitBtn(pos.x, pos.y);
     if (!b) return;
     if (b.label === 'Jogar' || b.label === 'Tentar de novo') startGame();
@@ -477,6 +535,19 @@ var Billy = Billy || {};
       window.addEventListener('keydown', function (e) {
         if (e.code === 'KeyM') Billy.Audio.toggleMusic();
         if ((e.code === 'Enter' || e.code === 'Space') && state.screen === 'menu') {
+          e.preventDefault();
+          startGame();
+        }
+        if ((e.code === 'Enter' || e.code === 'Space') && state.screen === 'results') {
+          e.preventDefault();
+          if (state.results.ready) continueFromResults();
+          else Billy.Results.skip(state.results);
+        }
+        if ((e.code === 'Enter' || e.code === 'Space') && state.screen === 'coming') {
+          e.preventDefault();
+          goMenu();
+        }
+        if ((e.code === 'Enter' || e.code === 'Space') && state.screen === 'gameover') {
           e.preventDefault();
           startGame();
         }

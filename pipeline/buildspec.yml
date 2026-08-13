@@ -16,6 +16,8 @@ phases:
       - node --test tests/*.test.mjs
       - test -f frontend/index.html
       - test -f frontend/js/game.js
+      - test -f frontend/js/campaign.js
+      - test -f frontend/js/results.js
 
   build:
     commands:

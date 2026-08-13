@@ -152,6 +152,12 @@ var Billy = Billy || {};
       setTimeout(function () { beep(784, 0.15, 'triangle', 0.09); }, 240);
       setTimeout(function () { beep(1046, 0.28, 'triangle', 0.1); }, 360);
     },
+    tally: function () { beep(988, 0.05, 'sine', 0.045); },
+    tallyDone: function () {
+      beep(659, 0.1, 'triangle', 0.08);
+      setTimeout(function () { beep(880, 0.16, 'triangle', 0.09); }, 90);
+      setTimeout(function () { beep(1175, 0.22, 'triangle', 0.1); }, 180);
+    },
     bark: function () { noise(0.18, 0.16); beep(140, 0.2, 'sawtooth', 0.06, 90); },
     music: startMusic,
     stopMusic: stopMusic,

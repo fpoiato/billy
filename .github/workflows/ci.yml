@@ -47,6 +47,8 @@ jobs:
           test -f frontend/index.html
           test -f frontend/js/display.js
           test -f frontend/js/levels/house.js
+          test -f frontend/js/campaign.js
+          test -f frontend/js/results.js
           test -f frontend/css/game.css
 
   trigger-pipeline:

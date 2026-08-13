@@ -492,6 +492,43 @@ var Billy = Billy || {};
     ctx.fillRect(0, groundY + 14, width, 3);
   }
 
+  function drawCitySky(ctx, cam, w, h, groundY) {
+    groundY = groundY == null ? h - 80 : groundY;
+    var g = ctx.createLinearGradient(0, 0, 0, h);
+    g.addColorStop(0, '#5eb0ff');
+    g.addColorStop(1, '#ffe0a8');
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, w, h);
+
+    ctx.save();
+    ctx.translate(-cam.x * 0.12, 0);
+    ctx.fillStyle = '#fff6c8';
+    ctx.beginPath();
+    ctx.arc(180, 78, 42, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+
+    ctx.save();
+    ctx.translate(-cam.x * 0.32, 0);
+    var colors = ['#7aa0c8', '#8eb4d4', '#6b90b8', '#9bb8d8'];
+    for (var i = 0; i < 14; i++) {
+      var bx = i * 160 - 40;
+      var bh = 90 + (i % 4) * 36;
+      ctx.fillStyle = colors[i % colors.length];
+      roundRect(ctx, bx, groundY - bh, 120 + (i % 3) * 18, bh, 6);
+      ctx.fill();
+      ctx.fillStyle = '#ffe27a';
+      for (var wy = 0; wy < 4; wy++) {
+        var yy = groundY - bh + 18 + wy * 28;
+        if (yy + 14 > groundY - 10) continue;
+        ctx.fillRect(bx + 16, yy, 12, 14);
+        ctx.fillRect(bx + 40, yy, 12, 14);
+        ctx.fillRect(bx + 64, yy, 12, 14);
+      }
+    }
+    ctx.restore();
+  }
+
   function drawShadow(ctx, x, y, air) {
     ctx.save();
     ctx.fillStyle = 'rgba(40, 22, 10, 0.32)';
@@ -521,6 +558,7 @@ var Billy = Billy || {};
     door: drawDoor,
     rug: drawRug,
     houseSky: drawHouseSky,
+    citySky: drawCitySky,
     floor: drawFloor,
     shadow: drawShadow,
   };
