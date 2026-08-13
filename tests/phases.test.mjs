@@ -6,6 +6,7 @@ const files = [
   'version.js',
   'config.js',
   'physics.js',
+  'draw.js',
   'levels/build.js',
   'levels/house.js',
   'levels/papai.js',
@@ -64,6 +65,17 @@ test('beach has crabs, waves, seagulls and a reunion goal', () => {
   assert.ok(level.decos.some((d) => d.kind === 'toy' && d.kiss));
   assert.ok(level.decos.some((d) => d.kind === 'yard' && d.beach));
   assert.ok(level.decos.some((d) => d.kind === 'shower' && d.pee));
+  const duck = level.decos.find((d) => d.kind === 'toy' && d.kiss);
+  const kombi = level.decos.find((d) => d.kind === 'kombi');
+  const elders = level.decos.find((d) => d.kind === 'elders');
+  assert.ok(kombi);
+  assert.ok(elders);
+  assert.equal(typeof Billy.Draw.kombi, 'function');
+  assert.equal(typeof Billy.Draw.elders, 'function');
+  assert.ok(kombi.x > level.checkpoint.x);
+  assert.ok(elders.x > kombi.x);
+  assert.ok(duck.x > elders.x);
+  assert.ok(duck.x - kombi.x < 500);
   assert.ok(!level.decos.some((d) => d.kind === 'door'));
   assert.equal(level.bossArena, null);
 });

@@ -6,4 +6,4 @@ var Billy = Billy || {};
  *
  *   npm run bump:version
  */
-Billy.APP_VERSION = '0.2.12';
+Billy.APP_VERSION = '0.2.13';
