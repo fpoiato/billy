@@ -33,6 +33,14 @@ var Billy = Billy || {};
       barking: false,
       barkT: 0,
       barkCd: 0,
+      eating: false,
+      eatT: 0,
+      eatWait: 0,
+      eatCooldown: 0,
+      fat: 0,
+      fatT: 0,
+      pooping: false,
+      poopT: 0,
     };
   }
 
@@ -72,6 +80,10 @@ var Billy = Billy || {};
         p.peeing = false;
         p.peeCooldown = 0.45;
       }
+      return;
+    }
+    if (p.eating || p.pooping || p.fat > 0) {
+      p.stillT = 0;
       return;
     }
     var still = p.onGround && Math.abs(p.vx) < 14 && input.dir === 0 && !input.jumpPressed;
@@ -131,7 +143,7 @@ var Billy = Billy || {};
       if (h.life <= 0) p.kissHearts.splice(i, 1);
     }
 
-    if (p.grabbed || p.peeing) {
+    if (p.grabbed || p.peeing || p.eating || p.pooping) {
       p.kissing = false;
       p.kissDuck = null;
       return;
@@ -153,6 +165,87 @@ var Billy = Billy || {};
       p.kissing = false;
       p.kissDuck = null;
       p.kissSpawn = 0;
+    }
+  }
+
+  function nearGrandma(p, level) {
+    var decos = level.decos || [];
+    var cx = p.x + p.w / 2;
+    for (var i = 0; i < decos.length; i++) {
+      var d = decos[i];
+      if (d.kind !== 'grandma') continue;
+      if (Math.abs(cx - d.x) <= C.GRANDMA_RANGE) return d;
+    }
+    return null;
+  }
+
+  function updateEat(p, input, level, dt) {
+    if (p.eatCooldown > 0) p.eatCooldown -= dt;
+
+    if (p.eating) {
+      p.eatT -= dt;
+      p.vx = 0;
+      p.fat = Math.min(1, p.fat + dt * 1.5);
+      if (p.eatT <= 0) {
+        p.eating = false;
+        p.fat = 1;
+        p.fatT = C.FAT_TIME;
+        p.eatCooldown = 0.35;
+      }
+      return;
+    }
+
+    if (p.pooping) {
+      p.poopT -= dt;
+      p.vx = 0;
+      p.fat = Math.max(0, p.poopT / C.POOP_TIME);
+      if (p.poopT <= 0) {
+        p.pooping = false;
+        p.fat = 0;
+        p.fatT = 0;
+        p.eatCooldown = 0.7;
+      }
+      return;
+    }
+
+    if (p.fatT > 0) {
+      p.fatT -= dt;
+      p.fat = 1;
+    }
+
+    if (p.fat > 0 && p.fatT <= 0 && p.onGround && !p.kissing && !p.grabbed) {
+      p.pooping = true;
+      p.poopT = C.POOP_TIME;
+      p.vx = 0;
+      if (!level.puddles) level.puddles = [];
+      level.puddles.push({
+        x: p.x + p.w / 2 - p.facing * 14,
+        y: C.GROUND - 2,
+        t: 0,
+        kind: 'coco',
+      });
+      if (Billy.Audio && Billy.Audio.poop) Billy.Audio.poop();
+      return;
+    }
+
+    if (p.fat > 0 || p.peeing || p.kissing || p.grabbed) {
+      p.eatWait = 0;
+      return;
+    }
+
+    var still = p.onGround && Math.abs(p.vx) < 14 && input.dir === 0 && !input.jumpPressed;
+    var gma = still && p.eatCooldown <= 0 ? nearGrandma(p, level) : null;
+    if (gma) {
+      p.eatWait += dt;
+      if (p.eatWait >= C.EAT_STILL) {
+        p.eating = true;
+        p.eatT = C.EAT_TIME;
+        p.eatWait = 0;
+        p.facing = gma.x >= p.x + p.w / 2 ? 1 : -1;
+        if (Billy.Audio && Billy.Audio.eat) Billy.Audio.eat();
+      }
+    } else {
+      p.eatWait = 0;
     }
   }
 
@@ -250,8 +343,9 @@ var Billy = Billy || {};
     }
 
     updatePee(p, input, level, dt);
+    updateEat(p, input, level, dt);
     updateKiss(p, input, level, dt);
-    var dir = p.peeing || p.kissing ? 0 : input.dir;
+    var dir = p.peeing || p.kissing || p.eating || p.pooping ? 0 : input.dir;
 
     if (p.onGround) p.coyote = C.COYOTE;
     else p.coyote -= dt;
@@ -276,7 +370,10 @@ var Billy = Billy || {};
 
     var max = p.onGround ? C.MAX_SPEED : C.MAX_AIR_SPEED;
     if (onRug(p, level.rugs) && p.onGround) max *= 1.25;
+    if (p.fat > 0) max *= 1 - p.fat * 0.42;
     p.vx = P.clamp(p.vx, -max, max);
+
+    if (p.eating || p.pooping) p.jumpBuf = 0;
 
     if (p.jumpBuf > 0 && p.coyote > 0) {
       p.vy = C.JUMP_V;
@@ -344,9 +441,11 @@ var Billy = Billy || {};
     create: create,
     update: update,
     updatePee: updatePee,
+    updateEat: updateEat,
     updateKiss: updateKiss,
     nearPeeSpot: nearPeeSpot,
     nearKissDuck: nearKissDuck,
+    nearGrandma: nearGrandma,
     nearBarkThing: nearBarkThing,
     updateBark: updateBark,
     peeZone: peeZone,

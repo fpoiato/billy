@@ -48,6 +48,7 @@
     B.plat(level, x0 + 210, C.GROUND - 36, 100, 12);
     B.steaksLine(level, x0 + 230, C.GROUND - 70, 3, 36);
     B.deco(level, 'plant', x0 + 500, C.GROUND);
+    B.deco(level, 'grandma', x0 + 880, C.GROUND);
     B.steaksLine(level, x0 + 700, C.GROUND - 28, 5, 48);
     B.deco(level, 'door', x0 + 1100, C.GROUND);
     B.critter(level, 'bird', x0 + 1300, C.GROUND - 40, x0 + 1180, x0 + 1500);

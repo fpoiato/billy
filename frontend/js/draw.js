@@ -60,6 +60,7 @@ var Billy = Billy || {};
     var hurt = !!opt.hurt;
     var scared = !!opt.scared;
     var bulge = opt.bulge || 0;
+    var fat = bulge ? 0 : (opt.fat || 0);
     var blink = hurt && !bulge && Math.floor(t * 20) % 2 === 0;
     if (blink) return;
 
@@ -67,6 +68,7 @@ var Billy = Billy || {};
     ctx.translate(x, y);
     ctx.scale(facing, 1);
     if (bulge) ctx.scale(1 - bulge * 0.22, 1 + bulge * 0.2);
+    if (fat) ctx.scale(1 + fat * 0.7, 1 - fat * 0.12);
 
     var bob = air ? -3 : Math.sin(t * (run ? 16 : 5)) * (run ? 1.6 : 0.8);
     ctx.translate(0, bob);
@@ -94,7 +96,7 @@ var Billy = Billy || {};
     drawLeg(ctx, -7, -11, opt.pee ? 9 : backNear, tuck + (opt.pee ? -13 : 0));
 
     ctx.beginPath();
-    ctx.ellipse(-2, -18, 20, 13, -0.12, 0, Math.PI * 2);
+    ctx.ellipse(-2, -16, 20 + fat * 6, 13 + fat * 7, -0.12, 0, Math.PI * 2);
     paint(ctx, '#6d5b4a', '#3d2e22', 3);
     ctx.beginPath();
     ctx.ellipse(-6, -20, 14, 9, -0.2, 0, Math.PI * 2);
@@ -192,6 +194,9 @@ var Billy = Billy || {};
       ctx.beginPath();
       ctx.arc(40, -26, 11 + Math.sin(t * 28) * 1.6, -0.35, 0.35);
       ctx.stroke();
+    } else if (opt.eat) {
+      ctx.ellipse(28, -20.5, 3.8, 3.2 + Math.abs(Math.sin(t * 18)) * 2, 0.1, 0, Math.PI * 2);
+      paint(ctx, '#3a1810', '#1a0c08', 1.2);
     } else if (bulge) {
       ctx.ellipse(26, -20, 3.2 + bulge * 2, 3.4 + bulge * 2.2, 0, 0, Math.PI * 2);
       ctx.stroke();
@@ -202,10 +207,18 @@ var Billy = Billy || {};
       ctx.arc(26, -22, 3.4, 0.15, Math.PI - 0.15, true);
       ctx.stroke();
     }
-    if (!scared && !bulge && !bark) {
+    if (!scared && !bulge && !bark && !opt.eat) {
       ctx.beginPath();
       ctx.ellipse(27, -20, 2.2, 2.6, 0.2, 0, Math.PI);
       paint(ctx, '#ff7a9a', '#c45a70', 1);
+    }
+
+    if (opt.poop) {
+      ctx.fillStyle = 'rgba(110, 72, 32, 0.92)';
+      var blob = 4 + Math.sin(t * 20) * 1.2;
+      ctx.beginPath();
+      ctx.ellipse(-18, -4, 3.2, blob, -0.2, 0, Math.PI * 2);
+      ctx.fill();
     }
 
     if (opt.pee) {
@@ -869,15 +882,33 @@ var Billy = Billy || {};
     drawFloor(ctx, cam, night ? 'night' : theme, groundY, w, h);
   }
 
-  function drawPuddle(ctx, x, y, t) {
+  function drawPuddle(ctx, x, y, t, kind) {
     ctx.save();
-    ctx.fillStyle = 'rgba(255, 214, 70, 0.55)';
-    ctx.strokeStyle = 'rgba(196, 150, 40, 0.65)';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.ellipse(x, y, 15 + Math.sin(t * 2) * 1.2, 5, 0, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.stroke();
+    if (kind === 'coco') {
+      ctx.fillStyle = '#6b3f1c';
+      ctx.strokeStyle = '#3d2e22';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.ellipse(x, y, 11, 6, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.ellipse(x - 3, y - 5, 6, 5, -0.2, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.ellipse(x + 4, y - 8, 4.5, 4, 0.15, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+    } else {
+      ctx.fillStyle = 'rgba(255, 214, 70, 0.55)';
+      ctx.strokeStyle = 'rgba(196, 150, 40, 0.65)';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.ellipse(x, y, 15 + Math.sin(t * 2) * 1.2, 5, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+    }
     ctx.restore();
   }
 
@@ -1202,6 +1233,85 @@ var Billy = Billy || {};
     ctx.restore();
   }
 
+  function drawGranny(ctx, x, y, t, opt) {
+    opt = opt || {};
+    var feed = !!opt.feed;
+    ctx.save();
+    ctx.translate(x, y + Math.sin(t * 3) * 1.2);
+
+    ctx.strokeStyle = '#f3d7b0';
+    ctx.lineWidth = 5;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(-8, -16);
+    ctx.lineTo(-8, -4);
+    ctx.moveTo(8, -16);
+    ctx.lineTo(8, -4);
+    ctx.stroke();
+
+    roundRect(ctx, -18, -52, 36, 40, 10);
+    paint(ctx, '#9b7bb8', '#5a3d78', 3);
+    ctx.fillStyle = '#e8c48a';
+    ctx.fillRect(-10, -44, 20, 8);
+
+    ctx.beginPath();
+    ctx.arc(0, -64, 13, 0, Math.PI * 2);
+    paint(ctx, '#f3d7b0', '#b08958', 3);
+    ctx.beginPath();
+    ctx.ellipse(0, -74, 14, 9, 0, 0, Math.PI * 2);
+    paint(ctx, '#c8c4c0', '#8a8680', 2);
+    ctx.beginPath();
+    ctx.arc(0, -80, 6, 0, Math.PI * 2);
+    paint(ctx, '#c8c4c0', '#8a8680', 2);
+
+    ctx.strokeStyle = '#4a5568';
+    ctx.lineWidth = 1.6;
+    ctx.beginPath();
+    ctx.arc(-5, -64, 4.2, 0, Math.PI * 2);
+    ctx.arc(5, -64, 4.2, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(-1, -64);
+    ctx.lineTo(1, -64);
+    ctx.stroke();
+    ctx.fillStyle = '#2a1810';
+    ctx.beginPath();
+    ctx.arc(-5, -64, 1.4, 0, Math.PI * 2);
+    ctx.arc(5, -64, 1.4, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = '#ff7a9a';
+    ctx.beginPath();
+    ctx.ellipse(-8, -58, 2.4, 1.6, 0, 0, Math.PI * 2);
+    ctx.ellipse(8, -58, 2.4, 1.6, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = '#c45a70';
+    ctx.lineWidth = 1.6;
+    ctx.beginPath();
+    ctx.arc(0, -56, 3.2, 0.2, Math.PI - 0.2, true);
+    ctx.stroke();
+
+    var plateY = feed ? -28 : -36;
+    ctx.beginPath();
+    ctx.ellipse(22, plateY, 12, 4, 0.1, 0, Math.PI * 2);
+    paint(ctx, '#fff6e8', '#b08958', 2);
+    roundRect(ctx, 16, plateY - 10, 10, 8, 2);
+    paint(ctx, '#ffb6c8', '#c45a70', 1.5);
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(18, plateY - 8, 6, 2);
+    ctx.beginPath();
+    ctx.ellipse(28, plateY - 5, 5, 2.4, 0.4, 0, Math.PI * 2);
+    paint(ctx, '#e8a05a', '#8a5a28', 1);
+    ctx.strokeStyle = '#e8dcc8';
+    ctx.lineWidth = 1.6;
+    ctx.beginPath();
+    ctx.moveTo(31, plateY - 5);
+    ctx.lineTo(36, plateY - 10);
+    ctx.stroke();
+
+    ctx.restore();
+  }
+
   Billy.Draw = {
     roundRect: roundRect,
     paint: paint,
@@ -1251,5 +1361,6 @@ var Billy = Billy || {};
     gate: drawGate,
     bigDog: drawBigDog,
     camila: drawCamila,
+    granny: drawGranny,
   };
 })();

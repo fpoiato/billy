@@ -78,6 +78,7 @@ test('grandma has yarn, needles, vases, cat and Camila as boss', () => {
   assert.equal(level.goal, null);
   assert.equal(level.bossKind, 'camila');
   assert.ok(level.bossArena);
+  assert.ok(level.decos.some((d) => d.kind === 'grandma'));
   assert.ok(level.decos.some((d) => d.kind === 'sofa' && d.pee));
   assert.ok(level.decos.some((d) => d.kind === 'toy' && d.kiss && d.clearKiss));
 });

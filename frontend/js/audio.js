@@ -185,6 +185,12 @@ var Billy = Billy || {};
       setTimeout(function () { beep(988, 0.16, 'sine', 0.06); }, 180);
     },
     pee: function () { noise(0.2, 0.05); beep(160, 0.22, 'sine', 0.035, 80); },
+    eat: function () {
+      beep(320, 0.08, 'square', 0.06);
+      setTimeout(function () { beep(280, 0.1, 'square', 0.05); }, 90);
+      setTimeout(function () { beep(360, 0.12, 'triangle', 0.05); }, 180);
+    },
+    poop: function () { noise(0.22, 0.07); beep(110, 0.24, 'sine', 0.04, 60); },
     music: startMusic,
     stopMusic: stopMusic,
     startedAt: function () { return startedAt; },
