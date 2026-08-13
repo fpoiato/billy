@@ -50,6 +50,9 @@ var Billy = Billy || {};
       goalHit: false,
     };
     Billy.Audio.music(level.music || 'day');
+    if (level.leash && Billy.Dad) {
+      level.dad = Billy.Dad.create(player.x - (Billy.CONFIG.LEASH_REST || 96));
+    }
     setTouch(true);
     return true;
   }
@@ -147,6 +150,7 @@ var Billy = Billy || {};
     p.vx = 0;
     p.vy = 0;
     p.invuln = 1.2;
+    if (state.level.dad && Billy.Dad) Billy.Dad.reset(state.level.dad, p);
     if (state.boss && !state.boss.done && state.boss.arena) {
       p.x = state.boss.arena.left + 60;
       p.y = C.GROUND - p.h;
@@ -237,6 +241,13 @@ var Billy = Billy || {};
     var level = state.level;
     var p = state.player;
     Billy.Player.update(p, input, level, dt);
+    if (level.dad && Billy.Dad) Billy.Dad.update(level.dad, p, level, state.cam, dt);
+    if (level.dad && level.dad.mode === 'rush' && !level.dad.rushBanner) {
+      level.dad.rushBanner = true;
+      state.banner = 'Hambúrguer!!!';
+      state.bannerT = 1.2;
+    }
+    if (level.dad && level.dad.mode === 'walk') level.dad.rushBanner = false;
     Billy.Enemies.updateCritters(level.critters || [], dt, level.platforms);
     var vs = level.vacuums || [];
     for (var i = 0; i < vs.length; i++) Billy.Enemies.updateVacuum(vs[i], dt);
@@ -414,6 +425,16 @@ var Billy = Billy || {};
     if (d.kind === 'grandma') {
       D.granny(ctx, x, d.y, state.t, { feed: state.player.eating });
     }
+    if (d.kind === 'tree') D.tree(ctx, x, d.y);
+    if (d.kind === 'bench') D.bench(ctx, x, d.y);
+    if (d.kind === 'foodtruck') {
+      var dad = state.level.dad;
+      var at = dad && dad.truck === d;
+      D.foodTruck(ctx, x, d.y, state.t, {
+        pay: at && dad.mode === 'pay' && dad.money > 0.55,
+        give: at && (dad.mode === 'take' || dad.mode === 'eat'),
+      });
+    }
   }
 
   function drawWorld() {
@@ -429,7 +450,7 @@ var Billy = Billy || {};
       D.rug(ctx, rug);
     }
 
-    var platFill = night ? '#6b5a7a' : theme === 'street' ? '#8a90a0' : theme === 'beach' ? '#e8c48a' : '#e8c48a';
+    var platFill = night ? '#6b5a7a' : theme === 'street' ? '#8a90a0' : theme === 'papai' ? '#d4c48a' : theme === 'beach' ? '#e8c48a' : '#e8c48a';
     var platStroke = night ? '#3a2414' : '#5a3516';
     for (var i = 0; i < level.platforms.length; i++) {
       var p = level.platforms[i];
@@ -567,6 +588,46 @@ var Billy = Billy || {};
     }
 
     var pl = state.player;
+    var dad = level.dad;
+    if (dad && D.dad) {
+      var dadCx = dad.x + dad.w / 2;
+      var billyCollarX = pl.x + pl.w / 2 + pl.facing * 8;
+      var dadHandX = dadCx + (pl.x + pl.w / 2 >= dadCx ? 18 : -18);
+      D.leash(
+        ctx,
+        worldX(billyCollarX),
+        pl.y + 12,
+        worldX(dadHandX),
+        dad.y + 52,
+        state.t
+      );
+      D.shadow(ctx, worldX(dadCx), C.GROUND + 4, false);
+      D.dad(ctx, worldX(dadCx), dad.y + dad.h, state.t, {
+        dir: dad.facing,
+        run: dad.run && dad.mode === 'walk',
+        rush: dad.mode === 'rush' || dad.rush,
+        pay: dad.mode === 'pay',
+        eat: dad.mode === 'eat',
+        hold: dad.mode === 'take',
+        burger: dad.burger,
+      });
+      if (dad.mode === 'pay' && dad.truck) {
+        var fromX = worldX(dadCx + dad.facing * 22);
+        var fromY = dad.y + 44;
+        var toX = worldX(dad.truck.x + 86);
+        var toY = C.GROUND - 74;
+        var u = dad.money || 0;
+        var mx = fromX + (toX - fromX) * u;
+        var my = fromY + (toY - fromY) * u - Math.sin(u * Math.PI) * 24;
+        ctx.fillStyle = '#3cb46a';
+        ctx.strokeStyle = '#1f6b3a';
+        ctx.lineWidth = 1.6;
+        D.roundRect(ctx, mx - 7, my - 4, 14, 8, 2);
+        ctx.fill();
+        ctx.stroke();
+      }
+    }
+
     var kiss = pl.kissing && pl.kissDuck;
     var hearts = pl.kissHearts || [];
     var kissHearts = [];
@@ -753,7 +814,7 @@ var Billy = Billy || {};
     Billy.Hud.draw(ctx, state);
     if (state.nightIntro > 0) drawBanner('Sozinho em casa à noite...');
     else if (state.bannerT > 0 && state.banner) drawBanner(state.banner);
-    else if (state.intro > 0.4) drawBanner('O Patinho Amarelo fugiu!');
+    else if (state.intro > 0.4) drawBanner((state.level && state.level.introBanner) || 'O Patinho Amarelo fugiu!');
   }
 
   function loop(ts) {

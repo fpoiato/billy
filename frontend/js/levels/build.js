@@ -28,6 +28,7 @@ var Billy = Billy || {};
       yarns: [],
       vases: [],
       yardDogs: [],
+      foodTrucks: [],
       decos: [],
       puddles: [],
       spawn: { x: C.SPAWN_X || 300, y: C.GROUND - C.PLAYER_H - 2 },

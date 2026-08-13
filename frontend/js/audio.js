@@ -83,6 +83,10 @@ var Billy = Billy || {};
       [0, 349], [0.28, 440], [0.56, 523], [0.84, 494],
       [1.12, 440], [1.4, 392],
     ],
+    papai: [
+      [0, 392], [0.26, 494], [0.52, 523], [0.78, 587],
+      [1.04, 523], [1.3, 440], [1.56, 392],
+    ],
   };
 
   function playTune(kind) {
@@ -111,7 +115,7 @@ var Billy = Billy || {};
     stopMusic();
     if (musicOff) return;
     playTune(kind);
-    var period = kind === 'night' || kind === 'grandma' ? 2100 : kind === 'boss' ? 1400 : kind === 'beach' ? 1900 : 1800;
+    var period = kind === 'night' || kind === 'grandma' ? 2100 : kind === 'boss' ? 1400 : kind === 'beach' ? 1900 : kind === 'papai' ? 2000 : 1800;
     musicTimer = setInterval(function () {
       playTune(musicKind);
     }, period);
@@ -193,6 +197,10 @@ var Billy = Billy || {};
       beep(320, 0.08, 'square', 0.06);
       setTimeout(function () { beep(280, 0.1, 'square', 0.05); }, 90);
       setTimeout(function () { beep(360, 0.12, 'triangle', 0.05); }, 180);
+    },
+    coin: function () {
+      beep(880, 0.08, 'square', 0.06);
+      setTimeout(function () { beep(1175, 0.12, 'square', 0.07); }, 70);
     },
     poop: function () { noise(0.22, 0.07); beep(110, 0.24, 'sine', 0.04, 60); },
     music: startMusic,
