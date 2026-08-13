@@ -14,4 +14,7 @@ test('house level has day, checkpoint, night and boss arena', () => {
   assert.ok(level.hearts.length >= 3);
   assert.ok(level.platforms.length > 10);
   assert.equal(level.spawn.x > 0, true);
+  assert.ok(level.decos.some((d) => d.kind === 'sofa' && d.pee));
+  assert.ok(level.decos.some((d) => d.kind === 'bed' && d.pee));
+  assert.ok(level.decos.some((d) => d.kind === 'door' && d.pee));
 });

@@ -71,6 +71,18 @@ var Billy = Billy || {};
       [0, 196], [0.2, 233], [0.4, 196], [0.6, 247],
       [0.8, 196], [1.0, 175],
     ],
+    street: [
+      [0, 392], [0.18, 523], [0.36, 587], [0.54, 784],
+      [0.72, 659], [0.9, 587], [1.08, 523], [1.26, 659],
+    ],
+    beach: [
+      [0, 587], [0.24, 659], [0.48, 784], [0.72, 880],
+      [0.96, 784], [1.2, 659],
+    ],
+    grandma: [
+      [0, 349], [0.28, 440], [0.56, 523], [0.84, 494],
+      [1.12, 440], [1.4, 392],
+    ],
   };
 
   function playTune(kind) {
@@ -99,7 +111,7 @@ var Billy = Billy || {};
     stopMusic();
     if (musicOff) return;
     playTune(kind);
-    var period = kind === 'night' ? 2000 : kind === 'boss' ? 1400 : 1800;
+    var period = kind === 'night' || kind === 'grandma' ? 2100 : kind === 'boss' ? 1400 : kind === 'beach' ? 1900 : 1800;
     musicTimer = setInterval(function () {
       playTune(musicKind);
     }, period);
@@ -159,6 +171,7 @@ var Billy = Billy || {};
       setTimeout(function () { beep(1175, 0.22, 'triangle', 0.1); }, 180);
     },
     bark: function () { noise(0.18, 0.16); beep(140, 0.2, 'sawtooth', 0.06, 90); },
+    pee: function () { noise(0.2, 0.05); beep(160, 0.22, 'sine', 0.035, 80); },
     music: startMusic,
     stopMusic: stopMusic,
     startedAt: function () { return startedAt; },

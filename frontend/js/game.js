@@ -36,7 +36,7 @@ var Billy = Billy || {};
       t: 0,
       elapsed: 0,
       showTimer: true,
-      intro: phaseId === 'house' ? 2.8 : 1.2,
+      intro: level.intro != null ? level.intro : 1.2,
       nightIntro: 0,
       night: false,
       banner: '',
@@ -46,8 +46,9 @@ var Billy = Billy || {};
       spawn: { x: level.spawn.x, y: level.spawn.y },
       results: null,
       coming: null,
+      goalHit: false,
     };
-    Billy.Audio.music('day');
+    Billy.Audio.music(level.music || 'day');
     setTouch(true);
     return true;
   }
@@ -103,7 +104,10 @@ var Billy = Billy || {};
       setTouch(false);
       return;
     }
-    goMenu();
+    state.screen = 'victory';
+    state.victory = { t: 0, steaks: r.steaks };
+    state.results = null;
+    setTouch(false);
   }
 
   function respawn() {
@@ -162,44 +166,67 @@ var Billy = Billy || {};
 
   function collideHazards() {
     var p = state.player;
-    var hearts = state.level.hearts;
-    for (var i = 0; i < hearts.length; i++) {
-      var h = hearts[i];
-      if (h.dead) continue;
-      if (!P.aabb(p, h)) continue;
-      if (P.isStomp(p, h)) {
-        h.dead = true;
-        p.vy = C.STOMP_BOUNCE;
-        Billy.Audio.stomp();
-        Billy.Fx.sparkleBurst(state.fx.sparkles, h.x + h.w / 2, h.y, '#ffd24a');
-      } else {
-        hurtPlayer(h);
+    var level = state.level;
+
+    function hitList(list, kind, opt) {
+      opt = opt || {};
+      if (!list) return;
+      for (var i = 0; i < list.length; i++) {
+        var e = list[i];
+        if (e.dead) continue;
+        var body = Billy.Enemies.bodyOf(kind, e);
+        if (!P.aabb(p, body)) continue;
+        if (opt.noStomp) {
+          if (opt.groundOnly && !p.onGround) continue;
+          hurtPlayer(body);
+          continue;
+        }
+        if (P.isStomp(p, body)) {
+          p.vy = C.STOMP_BOUNCE;
+          Billy.Audio.stomp();
+          if (opt.kill) {
+            e.dead = true;
+            Billy.Fx.sparkleBurst(state.fx.sparkles, body.x + body.w / 2, body.y, '#ffd24a');
+          }
+        } else {
+          hurtPlayer(body);
+        }
       }
     }
 
-    var vs = state.level.vacuums;
-    for (var v = 0; v < vs.length; v++) {
-      var body = Billy.Enemies.bodyOf('vacuum', vs[v]);
-      if (!P.aabb(p, body)) continue;
-      if (P.isStomp(p, body)) p.vy = C.STOMP_BOUNCE;
-      else hurtPlayer(body);
-    }
-    var bs = state.level.brooms;
-    for (var b = 0; b < bs.length; b++) {
-      var bb = Billy.Enemies.bodyOf('broom', bs[b]);
-      if (!P.aabb(p, bb)) continue;
-      if (P.isStomp(p, bb)) p.vy = C.STOMP_BOUNCE;
-      else hurtPlayer(bb);
-    }
+    hitList(level.hearts, 'heart', { kill: true });
+    hitList(level.vacuums, 'vacuum');
+    hitList(level.brooms, 'broom');
+    hitList(level.cars, 'car');
+    hitList(level.skaters, 'skater', { kill: true });
+    hitList(level.cats, 'cat', { kill: true });
+    hitList(level.manholes, 'manhole', { noStomp: true, groundOnly: true });
+    hitList(level.crabs, 'crab', { kill: true });
+    hitList(level.waves, 'wave', { noStomp: true });
+    hitList(level.seagulls, 'gull', { kill: true });
+    hitList(level.needles, 'needle');
+    hitList(level.yarns, 'yarn', { kill: true });
+    hitList(level.vases, 'vase', { kill: true });
   }
 
   function updateWorld(dt, input) {
     var level = state.level;
     var p = state.player;
     Billy.Player.update(p, input, level, dt);
-    Billy.Enemies.updateHearts(level.hearts, dt, level.platforms);
-    for (var i = 0; i < level.vacuums.length; i++) Billy.Enemies.updateVacuum(level.vacuums[i], dt);
-    for (var j = 0; j < level.brooms.length; j++) Billy.Enemies.updateBroom(level.brooms[j], dt);
+    Billy.Enemies.updateHearts(level.hearts || [], dt, level.platforms);
+    var vs = level.vacuums || [];
+    for (var i = 0; i < vs.length; i++) Billy.Enemies.updateVacuum(vs[i], dt);
+    var bs = level.brooms || [];
+    for (var j = 0; j < bs.length; j++) Billy.Enemies.updateBroom(bs[j], dt);
+    Billy.Enemies.updateList(level.cars, dt);
+    Billy.Enemies.updateList(level.skaters, dt);
+    Billy.Enemies.updateList(level.cats, dt);
+    Billy.Enemies.updateList(level.crabs, dt);
+    Billy.Enemies.updateList(level.yarns, dt);
+    var ns = level.needles || [];
+    for (var n = 0; n < ns.length; n++) Billy.Enemies.updateBroom(ns[n], dt);
+    Billy.Enemies.updateWaves(level.waves, dt);
+    Billy.Enemies.updateSeagulls(level.seagulls, dt);
     Billy.Fx.update(state.fx, dt);
     collectSteaks(dt);
     collideHazards();
@@ -210,7 +237,7 @@ var Billy = Billy || {};
       Billy.Fx.sparkleBurst(state.fx.sparkles, level.checkpoint.x + 10, C.GROUND - 50, '#3cb46a');
     }
 
-    if (!state.night && p.x > level.dayEndX) {
+    if (level.dayEndX && !state.night && p.x > level.dayEndX) {
       state.night = true;
       state.nightIntro = 2.4;
       state.banner = 'Sozinho em casa à noite...';
@@ -220,9 +247,9 @@ var Billy = Billy || {};
     var arena = level.bossArena;
     if (arena && p.x > arena.left + 40) {
       if (!state.boss) {
-        state.boss = Billy.Boss.create(arena);
+        state.boss = Billy.Boss.create(arena, level.bossKind);
         Billy.Audio.music('boss');
-        state.banner = 'Monstros debaixo da cama!';
+        state.banner = level.bossBanner || 'Cuidado!';
         state.bannerT = 1.6;
       }
     }
@@ -242,7 +269,19 @@ var Billy = Billy || {};
       }
     }
 
-    if (state.boss) {
+    if (level.goal && !state.goalHit && !state.boss && p.x + p.w > level.goal.x) {
+      state.goalHit = true;
+      state.banner = level.goal.banner || 'Muito bem!';
+      state.bannerT = 1.6;
+      state.clearT = 0.01;
+      Billy.Audio.win();
+    }
+    if (state.goalHit && state.screen === 'playing') {
+      state.clearT += dt;
+      if (state.clearT > 1.6) beginResults();
+    }
+
+    if (state.boss && arena) {
       p.x = P.clamp(p.x, arena.left + 10, arena.right - p.w - 10);
     }
 
@@ -256,7 +295,8 @@ var Billy = Billy || {};
     state.t += dt;
     buttons = [];
     if (state.screen === 'coming' && state.coming) state.coming.t += dt;
-    if (state.screen === 'menu' || state.screen === 'gameover' || state.screen === 'coming') return;
+    if (state.screen === 'victory' && state.victory) state.victory.t += dt;
+    if (state.screen === 'menu' || state.screen === 'gameover' || state.screen === 'coming' || state.screen === 'victory') return;
     if (state.screen === 'results') {
       Billy.Results.update(state.results, dt);
       if (state.results.finished) finishResults();
@@ -290,36 +330,47 @@ var Billy = Billy || {};
     if (d.kind === 'door') D.door(ctx, x, d.y);
     if (d.kind === 'bed') D.bed(ctx, x, d.y);
     if (d.kind === 'toy') D.duck(ctx, x, d.y - 18, state.t, 0.7);
+    if (d.kind === 'palm') D.palm(ctx, x, d.y);
+    if (d.kind === 'castle') D.castle(ctx, x, d.y);
+    if (d.kind === 'gate') D.gate(ctx, x, d.y);
   }
 
   function drawWorld() {
     var level = state.level;
     var night = state.night;
+    var theme = level.theme || 'house';
     var bright = state.boss ? state.boss.brightness : night ? 0.28 : 1;
-    D.houseSky(ctx, state.cam, night, bright, C.WIDTH, C.HEIGHT, C.GROUND);
-    D.floor(ctx, state.cam, night, C.GROUND, C.WIDTH, C.HEIGHT);
+    D.scene(ctx, state.cam, theme, night, bright, C.WIDTH, C.HEIGHT, C.GROUND);
 
-    for (var r = 0; r < level.rugs.length; r++) {
-      var rug = { x: worldX(level.rugs[r].x), y: level.rugs[r].y, w: level.rugs[r].w, h: level.rugs[r].h };
+    var rugs = level.rugs || [];
+    for (var r = 0; r < rugs.length; r++) {
+      var rug = { x: worldX(rugs[r].x), y: rugs[r].y, w: rugs[r].w, h: rugs[r].h };
       D.rug(ctx, rug);
     }
 
+    var platFill = night ? '#6b5a7a' : theme === 'street' ? '#8a90a0' : theme === 'beach' ? '#e8c48a' : '#e8c48a';
+    var platStroke = night ? '#3a2414' : '#5a3516';
     for (var i = 0; i < level.platforms.length; i++) {
       var p = level.platforms[i];
       var sx = worldX(p.x);
       if (sx + p.w < -20 || sx > C.WIDTH + 20) continue;
       if (p.ground || p.y >= C.GROUND - 1) continue;
       D.roundRect(ctx, sx, p.y, p.w, p.h, 6);
-      D.paint(ctx, night ? '#6b5a7a' : '#e8c48a', '#5a3516', 3);
+      D.paint(ctx, platFill, platStroke, 3);
     }
 
-    for (var d = 0; d < level.decos.length; d++) drawDeco(level.decos[d]);
+    for (var d = 0; d < (level.decos || []).length; d++) drawDeco(level.decos[d]);
+
+    var puddles = level.puddles || [];
+    for (var pd = 0; pd < puddles.length; pd++) {
+      D.puddle(ctx, worldX(puddles[pd].x), puddles[pd].y, state.t);
+    }
 
     if (level.checkpoint) {
       D.checkpoint(ctx, worldX(level.checkpoint.x), C.GROUND, level.checkpoint.used, state.t);
     }
 
-    for (var s = 0; s < level.steaks.length; s++) {
+    for (var s = 0; s < (level.steaks || []).length; s++) {
       var st = level.steaks[s];
       if (st.taken) continue;
       D.steak(ctx, worldX(st.x), st.y, state.t);
@@ -327,22 +378,69 @@ var Billy = Billy || {};
     for (var b = 0; b < state.fx.bits.length; b++) {
       D.steak(ctx, worldX(state.fx.bits[b].x), state.fx.bits[b].y, state.t);
     }
-    for (var h = 0; h < level.hearts.length; h++) {
+    for (var h = 0; h < (level.hearts || []).length; h++) {
       var ht = level.hearts[h];
       if (ht.dead) continue;
       D.heart(ctx, worldX(ht.x + ht.w / 2), ht.y + ht.h / 2, state.t);
     }
-    for (var v = 0; v < level.vacuums.length; v++) {
+    for (var v = 0; v < (level.vacuums || []).length; v++) {
       var vac = level.vacuums[v];
       D.vacuum(ctx, worldX(vac.x), vac.y, vac.dir);
     }
-    for (var br = 0; br < level.brooms.length; br++) {
+    for (var br = 0; br < (level.brooms || []).length; br++) {
       D.broom(ctx, worldX(level.brooms[br].x), level.brooms[br].y);
+    }
+    for (var c = 0; c < (level.cars || []).length; c++) {
+      D.car(ctx, worldX(level.cars[c].x), level.cars[c].y, level.cars[c].dir);
+    }
+    for (var sk = 0; sk < (level.skaters || []).length; sk++) {
+      var ska = level.skaters[sk];
+      D.skater(ctx, worldX(ska.x + ska.w / 2), ska.y, state.t, ska.dir);
+    }
+    for (var ct = 0; ct < (level.cats || []).length; ct++) {
+      var cat = level.cats[ct];
+      D.cat(ctx, worldX(cat.x + cat.w / 2), cat.y + cat.h / 2, state.t);
+    }
+    for (var mh = 0; mh < (level.manholes || []).length; mh++) {
+      D.manhole(ctx, worldX(level.manholes[mh].x), level.manholes[mh].y, level.manholes[mh].w);
+    }
+    for (var cr = 0; cr < (level.crabs || []).length; cr++) {
+      var cb = level.crabs[cr];
+      D.crab(ctx, worldX(cb.x + cb.w / 2), cb.y + cb.h / 2, state.t);
+    }
+    for (var wv = 0; wv < (level.waves || []).length; wv++) {
+      var wa = level.waves[wv];
+      D.wave(ctx, worldX(wa.x), wa.y, wa.w, wa.h);
+    }
+    for (var gu = 0; gu < (level.seagulls || []).length; gu++) {
+      var gull = level.seagulls[gu];
+      D.seagull(ctx, worldX(gull.x + gull.w / 2), gull.y + gull.h / 2, state.t);
+    }
+    for (var nd = 0; nd < (level.needles || []).length; nd++) {
+      D.needle(ctx, worldX(level.needles[nd].x), level.needles[nd].y);
+    }
+    for (var yn = 0; yn < (level.yarns || []).length; yn++) {
+      var yarn = level.yarns[yn];
+      if (yarn.dead) continue;
+      D.yarn(ctx, worldX(yarn.x + yarn.w / 2), yarn.y + yarn.h / 2, state.t);
+    }
+    for (var vs2 = 0; vs2 < (level.vases || []).length; vs2++) {
+      var vase = level.vases[vs2];
+      if (vase.dead) continue;
+      D.vase(ctx, worldX(vase.x), vase.y);
     }
 
     if (state.boss && state.boss.monster) {
       var m = state.boss.monster;
-      D.monster(ctx, worldX(m.x + m.w / 2), m.y + m.h / 2, state.t);
+      if (m.kind === 'dog') {
+        D.bigDog(ctx, worldX(m.x + m.w / 2), m.y + m.h, state.t, {
+          down: m.mode === 'down',
+          bark: m.mode === 'bark',
+          dir: -1,
+        });
+      } else {
+        D.monster(ctx, worldX(m.x + m.w / 2), m.y + m.h / 2, state.t);
+      }
     }
 
     var pl = state.player;
@@ -350,13 +448,14 @@ var Billy = Billy || {};
     D.billy(ctx, worldX(pl.x + pl.w / 2), pl.y + pl.h, {
       t: state.t,
       facing: pl.facing,
-      run: Math.abs(pl.vx) > 40 && pl.onGround,
+      run: Math.abs(pl.vx) > 40 && pl.onGround && !pl.peeing,
       air: !pl.onGround,
       hurt: pl.invuln > 0,
       scared: night && !(state.boss && state.boss.done),
+      pee: pl.peeing,
     });
 
-    if (state.intro > 0) {
+    if (state.intro > 0 && theme === 'house') {
       D.duck(ctx, worldX(state.duckX), C.GROUND - 18, state.t, 1);
     }
 
@@ -446,6 +545,30 @@ var Billy = Billy || {};
     btn(C.WIDTH / 2 - 100, 410, 200, 48, 'Menu');
   }
 
+  function drawVictory() {
+    var t = state.victory ? state.victory.t : state.t;
+    D.scene(ctx, { x: t * 20 }, 'grandma', false, 1, C.WIDTH, C.HEIGHT, C.GROUND);
+    D.billy(ctx, C.WIDTH / 2 - 40, C.GROUND, { t: t, facing: 1, run: true });
+    D.duck(ctx, C.WIDTH / 2 + 50, C.GROUND - 4, t, 1);
+    ctx.textAlign = 'center';
+    ctx.fillStyle = '#fff';
+    ctx.strokeStyle = '#1a3a6b';
+    ctx.lineWidth = 7;
+    ctx.font = 'bold 36px Trebuchet MS, sans-serif';
+    ctx.strokeText('Fim de jogo — Você venceu!', C.WIDTH / 2, 110);
+    ctx.fillText('Fim de jogo — Você venceu!', C.WIDTH / 2, 110);
+    ctx.font = '18px Trebuchet MS, sans-serif';
+    ctx.lineWidth = 4;
+    ctx.strokeText('Billy e o Patinho Amarelo estão juntos na casa da vovó.', C.WIDTH / 2, 160);
+    ctx.fillText('Billy e o Patinho Amarelo estão juntos na casa da vovó.', C.WIDTH / 2, 160);
+    if (state.victory) {
+      ctx.font = '16px Trebuchet MS, sans-serif';
+      ctx.strokeText('Bifinhos: ' + state.victory.steaks, C.WIDTH / 2, 210);
+      ctx.fillText('Bifinhos: ' + state.victory.steaks, C.WIDTH / 2, 210);
+    }
+    btn(C.WIDTH / 2 - 100, 360, 200, 54, 'Menu');
+  }
+
   function render() {
     Billy.Display.apply(ctx);
     ctx.lineJoin = 'round';
@@ -469,6 +592,10 @@ var Billy = Billy || {};
     if (state.screen === 'coming') {
       Billy.Results.drawComing(ctx, state.coming);
       btn(C.WIDTH / 2 - 100, 360, 200, 54, 'Menu');
+      return;
+    }
+    if (state.screen === 'victory') {
+      drawVictory();
       return;
     }
     drawWorld();
@@ -543,7 +670,7 @@ var Billy = Billy || {};
           if (state.results.ready) continueFromResults();
           else Billy.Results.skip(state.results);
         }
-        if ((e.code === 'Enter' || e.code === 'Space') && state.screen === 'coming') {
+        if ((e.code === 'Enter' || e.code === 'Space') && (state.screen === 'coming' || state.screen === 'victory')) {
           e.preventDefault();
           goMenu();
         }

@@ -174,8 +174,7 @@ var Billy = Billy || {};
     var next = Billy.Campaign.next(r.phaseId);
     var D = Billy.Draw;
 
-    D.houseSky(ctx, { x: r.t * 18 }, false, 1, C.WIDTH, C.HEIGHT, C.GROUND);
-    D.floor(ctx, { x: r.t * 18 }, false, C.GROUND, C.WIDTH, C.HEIGHT);
+    D.scene(ctx, { x: r.t * 18 }, phase.id, false, 1, C.WIDTH, C.HEIGHT, C.GROUND);
 
     D.shadow(ctx, C.WIDTH / 2 - 210, C.GROUND + 4, false);
     D.billy(ctx, C.WIDTH / 2 - 210, C.GROUND, {
@@ -223,6 +222,11 @@ var Billy = Billy || {};
       ctx.textAlign = 'center';
       ctx.fillText('Próxima fase: ' + next.name, C.WIDTH / 2, 346);
       ctx.restore();
+    } else if (r.ready && phase.isFinale) {
+      ctx.fillStyle = '#1a3a6b';
+      ctx.font = 'bold 22px Trebuchet MS, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('Fim de jogo', C.WIDTH / 2, 346);
     }
 
     if (r.wipe > 0) {
@@ -234,7 +238,7 @@ var Billy = Billy || {};
         ctx.fillStyle = '#1a3a6b';
         ctx.textAlign = 'center';
         ctx.font = 'bold 20px Trebuchet MS, sans-serif';
-        ctx.fillText('Fase ' + nextPhase.number, C.WIDTH / 2, C.HEIGHT / 2 - 28);
+        ctx.fillText(next ? ('Fase ' + nextPhase.number) : 'Fim de jogo', C.WIDTH / 2, C.HEIGHT / 2 - 28);
         ctx.font = 'bold 42px Trebuchet MS, sans-serif';
         ctx.fillText(nextPhase.name, C.WIDTH / 2, C.HEIGHT / 2 + 18);
       }

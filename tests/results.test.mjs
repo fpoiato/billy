@@ -6,7 +6,11 @@ const Billy = loadBilly([
   'version.js',
   'config.js',
   'physics.js',
+  'levels/build.js',
   'levels/house.js',
+  'levels/street.js',
+  'levels/beach.js',
+  'levels/grandma.js',
   'campaign.js',
   'results.js',
 ]);
@@ -16,8 +20,8 @@ test('house is followed by the street', () => {
   const next = Billy.Campaign.next('house');
   assert.equal(house.playable, true);
   assert.equal(next.id, 'street');
-  assert.equal(next.playable, false);
-  assert.equal(Billy.Campaign.createLevel('street'), null);
+  assert.equal(next.playable, true);
+  assert.equal(Billy.Campaign.createLevel('street').id, 'street');
   const level = Billy.Campaign.createLevel('house');
   assert.equal(level.id, 'house');
 });
