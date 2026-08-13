@@ -338,7 +338,6 @@ var Billy = Billy || {};
       cooldown: 0,
       brightness: 0.4,
       done: false,
-      clearsPhase: false,
     };
   }
 

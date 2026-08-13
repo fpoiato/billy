@@ -6,14 +6,23 @@ var Billy = Billy || {};
       id: 'house',
       number: 1,
       name: 'Casa',
-      nextId: 'papai',
+      nextId: 'night',
       playable: true,
       clearTitle: 'Casa concluída!',
-      clearLine: 'O Patinho Amarelo apareceu no fim da casa!',
+      clearLine: 'Mayra quis dar banho, mas Billy achou o Patinho!',
+    },
+    {
+      id: 'night',
+      number: 2,
+      name: 'À noite',
+      nextId: 'papai',
+      playable: true,
+      clearTitle: 'Sozinho em casa à noite!',
+      clearLine: 'Billy achou o Patinho debaixo da cama!',
     },
     {
       id: 'papai',
-      number: 2,
+      number: 3,
       name: 'Passear com o Papai',
       nextId: 'street',
       playable: true,
@@ -22,7 +31,7 @@ var Billy = Billy || {};
     },
     {
       id: 'street',
-      number: 3,
+      number: 4,
       name: 'A Rua',
       nextId: 'beach',
       playable: true,
@@ -31,7 +40,7 @@ var Billy = Billy || {};
     },
     {
       id: 'beach',
-      number: 4,
+      number: 5,
       name: 'A Praia',
       nextId: 'grandma',
       playable: true,
@@ -40,7 +49,7 @@ var Billy = Billy || {};
     },
     {
       id: 'grandma',
-      number: 5,
+      number: 6,
       name: 'Casa da Vó',
       nextId: null,
       playable: true,
@@ -67,6 +76,7 @@ var Billy = Billy || {};
     var spec = get(id);
     if (!spec || !spec.playable) return null;
     if (spec.id === 'house') return Billy.Levels.createHouse();
+    if (spec.id === 'night') return Billy.Levels.createNight();
     if (spec.id === 'papai') return Billy.Levels.createPapai();
     if (spec.id === 'street') return Billy.Levels.createStreet();
     if (spec.id === 'beach') return Billy.Levels.createBeach();
