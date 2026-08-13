@@ -16,6 +16,22 @@ var Billy = Billy || {};
     }
   }
 
+  function splash(list, x, y) {
+    var colors = ['#7ec8ff', '#b8e8ff', '#fff', '#e8f6ff', '#9ad8ff'];
+    for (var i = 0; i < 16; i++) {
+      var a = -Math.PI / 2 + (Math.random() - 0.5) * 2.4;
+      list.push({
+        x: x + (Math.random() - 0.5) * 20,
+        y: y,
+        vx: Math.cos(a) * (50 + Math.random() * 90),
+        vy: Math.sin(a) * (70 + Math.random() * 90) - 40,
+        r: 2 + Math.random() * 4.5,
+        life: 0.9 + Math.random() * 0.4,
+        color: colors[i % colors.length],
+      });
+    }
+  }
+
   function scatterSteaks(list, x, y, n) {
     for (var i = 0; i < n; i++) {
       list.push({
@@ -56,6 +72,7 @@ var Billy = Billy || {};
       return { sparkles: [], bits: [] };
     },
     sparkleBurst: sparkleBurst,
+    splash: splash,
     scatterSteaks: scatterSteaks,
     update: updateFx,
   };

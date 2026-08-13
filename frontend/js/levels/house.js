@@ -156,6 +156,24 @@
     return 1600;
   }
 
+  function roomMayra(level, x0) {
+    var w = 1000;
+    plat(level, x0, C.GROUND, w, 90);
+    plat(level, x0 + 220, C.GROUND - 90, 120, 16);
+    plat(level, x0 + 660, C.GROUND - 90, 120, 16);
+    steaksLine(level, x0 + 240, C.GROUND - 124, 2, 36);
+    steaksLine(level, x0 + 680, C.GROUND - 124, 2, 36);
+    deco(level, 'door', x0 + 36, C.GROUND);
+    deco(level, 'shower', x0 + w / 2 - 12, C.GROUND);
+    deco(level, 'plant', x0 + w - 90, C.GROUND);
+    level.mayraArena = {
+      left: x0,
+      right: x0 + w,
+    };
+    level.mayraBanner = 'Mayra quer dar banho!';
+    return w;
+  }
+
   function roomNightHall(level, x0) {
     plat(level, x0, C.GROUND, 1700, 90);
     plat(level, x0 + 200, C.GROUND - 100, 100, 16);
@@ -219,6 +237,8 @@
       checkpoint: null,
       dayEndX: 0,
       night: false,
+      mayraArena: null,
+      mayraBanner: 'Mayra quer dar banho!',
       bossKind: 'bed',
       bossBanner: 'Monstros debaixo da cama!',
       intro: 2.8,
@@ -232,7 +252,8 @@
     level.checkpoint = { x: x + 80, y: C.GROUND, used: false };
     x += roomPlay(level, x);
     x += roomGallery(level, x);
-    level.dayEndX = x - 40;
+    level.dayEndX = x;
+    x += roomMayra(level, x);
     x += roomNightHall(level, x);
     x += roomNightToBoss(level, x);
     x += roomBoss(level, x);

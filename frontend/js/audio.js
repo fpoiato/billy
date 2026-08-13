@@ -185,6 +185,10 @@ var Billy = Billy || {};
       setTimeout(function () { beep(988, 0.16, 'sine', 0.06); }, 180);
     },
     pee: function () { noise(0.2, 0.05); beep(160, 0.22, 'sine', 0.035, 80); },
+    splash: function () {
+      noise(0.16, 0.11);
+      beep(480, 0.1, 'sine', 0.045, 160);
+    },
     eat: function () {
       beep(320, 0.08, 'square', 0.06);
       setTimeout(function () { beep(280, 0.1, 'square', 0.05); }, 90);

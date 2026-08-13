@@ -25,6 +25,8 @@ var Billy = Billy || {};
       peeT: 0,
       peeCooldown: 0,
       grabbed: false,
+      bathing: false,
+      wet: 0,
       bulge: 0,
       kissing: false,
       kissDuck: null,
@@ -334,6 +336,7 @@ var Billy = Billy || {};
   function update(p, input, level, dt) {
     p.animT += dt;
     if (p.invuln > 0) p.invuln -= dt;
+    if (p.wet > 0) p.wet -= dt;
 
     if (p.grabbed) {
       p.vx = 0;
