@@ -7,8 +7,13 @@ var Billy = Billy || {};
     return { x: 0, y: 0, shake: 0 };
   }
 
+  function lead() {
+    var w = C.WIDTH || 960;
+    return w * (w < 700 ? 0.48 : 0.35);
+  }
+
   function follow(cam, player, level, dt, lock) {
-    var target = lock ? lock.x : player.x + player.w / 2 - C.WIDTH * 0.35;
+    var target = lock ? lock.x : player.x + player.w / 2 - lead();
     var max = Math.max(0, level.width - C.WIDTH);
     target = Billy.Physics.clamp(target, 0, max);
     cam.x += (target - cam.x) * Math.min(1, dt * 8);
@@ -25,5 +30,5 @@ var Billy = Billy || {};
     return { x: mid - C.WIDTH / 2 };
   }
 
-  Billy.Camera = { create: create, follow: follow, lockOnArena: lockOnArena };
+  Billy.Camera = { create: create, follow: follow, lockOnArena: lockOnArena, lead: lead };
 })();

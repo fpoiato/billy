@@ -144,7 +144,7 @@
     deco(level, 'sofa', x0 + 560, C.GROUND);
     plat(level, x0 + 1100, C.GROUND - 110, 220, 16);
     steaksLine(level, x0 + 1130, C.GROUND - 144, 4, 44);
-    deco(level, 'toy', x0 + 1400, C.GROUND);
+    deco(level, 'plant', x0 + 1400, C.GROUND);
     return 1600;
   }
 
@@ -261,7 +261,7 @@
       brooms: [],
       decos: [],
       puddles: [],
-      spawn: { x: C.SPAWN_X || 300, y: C.GROUND - C.PLAYER_H - 2 },
+      spawn: { x: Billy.spawnX ? Billy.spawnX() : (C.SPAWN_X || 300), y: C.GROUND - C.PLAYER_H - 2 },
       checkpoint: null,
       dayEndX: 0,
       night: !!opt.night,

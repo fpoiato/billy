@@ -33,7 +33,9 @@ test('house is a daytime level that ends with Mayra', () => {
   const pees = level.decos.filter((d) => d.pee);
   assert.ok(pees.length >= 8);
   assert.ok(Math.max(...pees.map((d) => d.x)) - Math.min(...pees.map((d) => d.x)) > 4000);
-  assert.ok(level.decos.some((d) => d.kind === 'toy' && d.kiss && d.clearKiss));
+  const toys = level.decos.filter((d) => d.kind === 'toy');
+  assert.equal(toys.length, 1);
+  assert.ok(toys[0].kiss && toys[0].clearKiss);
 });
 
 test('night is its own phase after the day house', () => {

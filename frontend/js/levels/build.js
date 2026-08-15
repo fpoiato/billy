@@ -31,7 +31,7 @@ var Billy = Billy || {};
       foodTrucks: [],
       decos: [],
       puddles: [],
-      spawn: { x: C.SPAWN_X || 300, y: C.GROUND - C.PLAYER_H - 2 },
+      spawn: { x: Billy.spawnX ? Billy.spawnX() : (C.SPAWN_X || 300), y: C.GROUND - C.PLAYER_H - 2 },
       checkpoint: null,
       dayEndX: 0,
       bossArena: null,
