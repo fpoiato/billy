@@ -3,6 +3,7 @@ var Billy = Billy || {};
 Billy.CONFIG = {
   WIDTH: 960,
   HEIGHT: 540,
+  MIN_VIEW_WIDTH: 560,
   GROUND: 460,
 
   // Movimento estilo Sonic: acelera ao segurar o lado.
@@ -105,4 +106,10 @@ Billy.CONFIG = {
 
   START_LIVES: 3,
   SPAWN_X: 300,
+};
+
+Billy.spawnX = function () {
+  var C = Billy.CONFIG;
+  var w = C.WIDTH || 960;
+  return Math.min(C.SPAWN_X || 300, Math.max(90, Math.round(w * 0.4)));
 };

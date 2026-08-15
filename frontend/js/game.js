@@ -31,6 +31,7 @@ var Billy = Billy || {};
       level: level,
       player: player,
       cam: Billy.Camera.create(),
+      displayGen: Billy.Display.gen || 0,
       fx: Billy.Fx.create(),
       boss: null,
       mayraDone: false,
@@ -54,6 +55,7 @@ var Billy = Billy || {};
     if (level.leash && Billy.Dad) {
       level.dad = Billy.Dad.create(player.x - (Billy.CONFIG.LEASH_REST || 96));
     }
+    Billy.Camera.follow(state.cam, player, level, 10, null);
     setTouch(true);
     return true;
   }
@@ -416,6 +418,10 @@ var Billy = Billy || {};
     state.elapsed += dt;
     var lock = null;
     if (state.boss && state.boss.arena) lock = Billy.Camera.lockOnArena(state.boss.arena);
+    if (Billy.Display.gen !== state.displayGen) {
+      state.displayGen = Billy.Display.gen;
+      Billy.Camera.follow(state.cam, state.player, state.level, 10, lock);
+    }
     updateWorld(dt, input);
     Billy.Camera.follow(state.cam, state.player, state.level, dt, lock);
   }
