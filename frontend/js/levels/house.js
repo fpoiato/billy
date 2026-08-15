@@ -177,6 +177,7 @@
     deco(level, 'door', x0 + 36, C.GROUND);
     deco(level, 'shower', x0 + w / 2 - 12, C.GROUND);
     deco(level, 'plant', x0 + w - 220, C.GROUND);
+    // Só aparece e namora depois que a Mayra é derrotada.
     deco(level, 'toy', x0 + w - 120, C.GROUND, { kiss: true, clearKiss: true });
     level.bossArena = {
       left: x0,

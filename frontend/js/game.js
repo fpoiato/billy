@@ -441,6 +441,7 @@ var Billy = Billy || {};
     if (d.kind === 'shower') D.shower(ctx, x, d.y);
     if (d.kind === 'bed') D.bed(ctx, x, d.y);
     if (d.kind === 'toy') {
+      if (!Billy.Player.duckReady(d)) return;
       if (state.player.kissing && state.player.kissDuck === d) return;
       D.duck(ctx, x, d.y - 18, state.t, 0.7);
     }

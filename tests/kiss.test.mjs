@@ -53,3 +53,24 @@ test('a stage-end duck does not namorar until the phase is cleared', () => {
   Billy.Player.updateKiss(p, { dir: 0, jumpPressed: false }, level, 0.2);
   assert.equal(p.kissing, true);
 });
+
+test('the end duck stays hidden until the boss is down', () => {
+  const duck = { kind: 'toy', x: 220, y: C.GROUND, kiss: true, clearKiss: true };
+  assert.equal(Billy.Player.duckReady(duck), false);
+  duck.kissReady = true;
+  assert.equal(Billy.Player.duckReady(duck), true);
+});
+
+test('Billy does not bark at a hidden end duck', () => {
+  const yips = [];
+  Billy.Audio = { yip: function () { yips.push(1); } };
+  const p = Billy.Player.create(200, C.GROUND - C.PLAYER_H);
+  p.onGround = true;
+  const duck = { kind: 'toy', x: 220, y: C.GROUND, kiss: true, clearKiss: true };
+  Billy.Player.updateBark(p, { decos: [duck], width: 800 }, [], 0.05);
+  assert.equal(p.barking, false);
+  assert.equal(yips.length, 0);
+  duck.kissReady = true;
+  Billy.Player.updateBark(p, { decos: [duck], width: 800 }, [], 0.05);
+  assert.equal(p.barking, true);
+});

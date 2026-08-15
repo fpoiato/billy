@@ -119,13 +119,16 @@ var Billy = Billy || {};
     }
   }
 
+  function duckReady(d) {
+    return !!(d && d.kind === 'toy' && d.kiss && (!d.clearKiss || d.kissReady));
+  }
+
   function nearKissDuck(p, level) {
     var decos = level.decos || [];
     var cx = p.x + p.w / 2;
     for (var i = 0; i < decos.length; i++) {
       var d = decos[i];
-      if (d.kind !== 'toy' || !d.kiss) continue;
-      if (d.clearKiss && !d.kissReady) continue;
+      if (!duckReady(d)) continue;
       if (Math.abs(cx - d.x) <= C.KISS_RANGE) return d;
     }
     return null;
@@ -309,7 +312,7 @@ var Billy = Billy || {};
     var decos = (level && level.decos) || [];
     for (i = 0; i < decos.length; i++) {
       var d = decos[i];
-      if (d.kind !== 'toy') continue;
+      if (!duckReady(d)) continue;
       if (p.kissing && p.kissDuck === d) continue;
       if (nearBody(p, { x: d.x - 16, y: d.y - 30, w: 32, h: 24 }, range)) return true;
     }
@@ -500,6 +503,7 @@ var Billy = Billy || {};
     updateEat: updateEat,
     updateKiss: updateKiss,
     nearPeeSpot: nearPeeSpot,
+    duckReady: duckReady,
     nearKissDuck: nearKissDuck,
     nearGrandma: nearGrandma,
     nearBarkThing: nearBarkThing,
